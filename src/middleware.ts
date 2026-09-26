@@ -1,11 +1,17 @@
-﻿import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
+export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  // Halaman publik yang selalu bisa diakses
+  // Cek apakah ada cookie session NextAuth
+  const sessionCookie =
+    req.cookies.get("next-auth.session-token") ||
+    req.cookies.get("__Secure-next-auth.session-token");
+
+  const isLoggedIn = !!sessionCookie;
+
+  // Halaman publik
   const isPublicPath =
     pathname === "/" ||
     pathname.startsWith("/login") ||
@@ -13,19 +19,18 @@ export default auth((req) => {
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon");
 
-  // Kalau di halaman login & sudah login → redirect ke /ai-studio
+  // Kalau di /login & sudah login → redirect ke /ai-studio
   if (pathname.startsWith("/login") && isLoggedIn) {
     return NextResponse.redirect(new URL("/ai-studio", req.url));
   }
 
-  // Kalau bukan halaman publik & belum login → redirect ke /login
+  // Kalau bukan public & belum login → redirect ke /login
   if (!isPublicPath && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
-  // Selain itu, lanjut normal
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: [
