@@ -15,6 +15,7 @@ export default function Navbar() {
     { href: "/ai-studio", label: "AI Studio" },
     { href: "/posts", label: "Posts" },
     { href: "/finance", label: "Keuangan" },
+    { href: "/visualisasi", label: "Visualisasi" },
   ];
 
   function isActive(href: string) {
