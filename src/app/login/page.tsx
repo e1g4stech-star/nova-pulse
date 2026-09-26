@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -8,11 +8,11 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState<"login" | "register">("login");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function handleSubmit(e) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -47,7 +47,8 @@ export default function LoginPage() {
         router.refresh();
       }
     } catch (err) {
-      setError(err.message);
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -69,7 +70,9 @@ export default function LoginPage() {
         <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-8 border border-cyan-500/20">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-cyan-300 mb-2 font-semibold text-sm">Email</label>
+              <label className="block text-cyan-300 mb-2 font-semibold text-sm">
+                Email
+              </label>
               <input
                 type="email"
                 value={email}
@@ -81,7 +84,9 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="block text-cyan-300 mb-2 font-semibold text-sm">Password</label>
+              <label className="block text-cyan-300 mb-2 font-semibold text-sm">
+                Password
+              </label>
               <input
                 type="password"
                 value={password}
@@ -117,12 +122,16 @@ export default function LoginPage() {
               }}
               className="text-cyan-400 hover:text-cyan-300 text-sm"
             >
-              {mode === "login" ? "Belum punya akun? Daftar" : "Sudah punya akun? Masuk"}
+              {mode === "login"
+                ? "Belum punya akun? Daftar"
+                : "Sudah punya akun? Masuk"}
             </button>
           </div>
 
           <p className="mt-6 text-center text-slate-500 text-xs">
-            <a href="/" className="hover:text-cyan-400">← Kembali ke Beranda</a>
+            <a href="/" className="hover:text-cyan-400">
+              ← Kembali ke Beranda
+            </a>
           </p>
         </div>
       </div>

@@ -50,8 +50,9 @@ export default function AIStudioPage() {
       } else {
         setError(json.error || "Gagal generate");
       }
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -83,8 +84,9 @@ export default function AIStudioPage() {
       } else {
         setImageError(json.error || "Gagal generate gambar");
       }
-    } catch (err: any) {
-      setImageError(err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setImageError(msg);
     } finally {
       setImageLoading(false);
     }
@@ -117,8 +119,9 @@ export default function AIStudioPage() {
       } else {
         setSaveMessage(`Gagal: ${json.error}`);
       }
-    } catch (err: any) {
-      setSaveMessage(`Error: ${err.message}`);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      setSaveMessage(`Error: ${msg}`);
     } finally {
       setSaving(false);
     }

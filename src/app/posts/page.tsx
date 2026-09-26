@@ -25,7 +25,8 @@ export default function PostsPage() {
       const json = await res.json();
       if (json.success) setPosts(json.data);
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      console.error(msg);
     } finally {
       setLoading(false);
     }
@@ -47,7 +48,8 @@ export default function PostsPage() {
         alert("Gagal hapus: " + (json.error || "Unknown error"));
       }
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      console.error(msg);
     }
   }
 

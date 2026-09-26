@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import Navbar from "@/components/Navbar";
 
 interface Transaction {
@@ -44,7 +44,8 @@ export default function FinancePage() {
         setSummary(json.data.summary);
       }
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      console.error(msg);
     } finally {
       setLoading(false);
     }
@@ -54,7 +55,7 @@ export default function FinancePage() {
     fetchTransactions();
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSubmitting(true);
 
@@ -80,8 +81,9 @@ export default function FinancePage() {
       } else {
         alert("Gagal: " + json.error);
       }
-    } catch (err: any) {
-      alert("Error: " + err.message);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      alert("Error: " + msg);
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +96,8 @@ export default function FinancePage() {
       const json = await res.json();
       if (json.success) fetchTransactions();
     } catch (err) {
-      console.error(err);
+      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
+      console.error(msg);
     }
   }
 
