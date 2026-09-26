@@ -4,10 +4,11 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  // Cek apakah ada cookie session NextAuth
+  // Cek semua kemungkinan nama cookie session NextAuth
   const sessionCookie =
     req.cookies.get("next-auth.session-token") ||
-    req.cookies.get("__Secure-next-auth.session-token");
+    req.cookies.get("__Secure-next-auth.session-token") ||
+    req.cookies.get("__Host-next-auth.session-token");
 
   const isLoggedIn = !!sessionCookie;
 
