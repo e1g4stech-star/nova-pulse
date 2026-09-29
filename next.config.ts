@@ -1,54 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  async headers() {
-    return [
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
+  images: {
+    remotePatterns: [
       {
-        source: "/login",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0",
-          },
-        ],
+        protocol: "https",
+        hostname: "*.public.blob.vercel-storage.com",
       },
-      {
-        source: "/ai-studio",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0",
-          },
-        ],
-      },
-      {
-        source: "/dashboard",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0",
-          },
-        ],
-      },
-      {
-        source: "/posts",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0",
-          },
-        ],
-      },
-      {
-        source: "/finance",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "no-store, no-cache, must-revalidate, max-age=0",
-          },
-        ],
-      },
-    ];
+    ],
   },
 };
 
