@@ -1,7 +1,6 @@
 import NextAuth, { NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
-import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
@@ -10,11 +9,6 @@ export const authConfig: NextAuthConfig = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || "placeholder",
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "placeholder",
-      allowDangerousEmailAccountLinking: true,
-    }),
     CredentialsProvider({
       name: "Email & Password",
       credentials: {
@@ -54,28 +48,6 @@ export const authConfig: NextAuthConfig = {
     async session({ session, token }) {
       if (session.user) (session.user as any).id = token.id;
       return session;
-    },
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const pathname = nextUrl.pathname;
-
-      // Halaman publik
-      const isPublicPath =
-        pathname === "/" ||
-        pathname.startsWith("/login") ||
-        pathname.startsWith("/api/auth");
-
-      // Di /login & sudah login → redirect ke /ai-studio
-      if (pathname.startsWith("/login") && isLoggedIn) {
-        return Response.redirect(new URL("/ai-studio", nextUrl));
-      }
-
-      // Bukan public & belum login → redirect ke /login
-      if (!isPublicPath && !isLoggedIn) {
-        return Response.redirect(new URL("/login", nextUrl));
-      }
-
-      return true;
     },
   },
 };

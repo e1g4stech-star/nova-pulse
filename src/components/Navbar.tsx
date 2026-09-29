@@ -13,9 +13,9 @@ export default function Navbar() {
   const navItems = [
     { href: "/dashboard", label: "Dashboard" },
     { href: "/ai-studio", label: "AI Studio" },
+    { href: "/media-studio", label: "Media" },
     { href: "/posts", label: "Posts" },
     { href: "/finance", label: "Keuangan" },
-    { href: "/visualisasi", label: "Visualisasi" },
   ];
 
   function isActive(href: string) {

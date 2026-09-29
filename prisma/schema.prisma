@@ -22,6 +22,7 @@ model User {
   connections  SocialConnection[]
   analytics    Analytics[]
   transactions Transaction[]
+  media        Media[]
 
   @@map("users")
 }
@@ -147,4 +148,22 @@ model Transaction {
   @@index([userId, date])
   @@index([userId, type])
   @@map("transactions")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  userId    String
+  fileName  String
+  fileUrl   String
+  fileKey   String
+  fileType  String
+  mimeType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, fileType])
+  @@index([userId, createdAt])
+  @@map("media")
 }
