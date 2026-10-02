@@ -1,7 +1,6 @@
 ﻿"use client";
 
 import { useState, FormEvent } from "react";
-import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -34,18 +33,22 @@ export default function LoginPage() {
         }
       }
 
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (result?.error) {
-        setError("Email atau password salah");
-      } else {
-        router.push("/ai-studio");
-        router.refresh();
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.error || "Email atau password salah");
+        return;
       }
+
+      // Berhasil — redirect ke /ai-studio
+      router.push("/ai-studio");
+      router.refresh();
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
       setError(msg);
@@ -70,30 +73,36 @@ export default function LoginPage() {
         <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-8 border border-cyan-500/20">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-cyan-300 mb-2 font-semibold text-sm">
+              <label htmlFor="email" className="block text-cyan-300 mb-2 font-semibold text-sm">
                 Email
               </label>
               <input
+                id="email"
+                name="email"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="kamu@email.com"
+                autoComplete="email"
                 className="w-full bg-slate-900/80 text-white rounded-xl p-3 border border-slate-700 focus:border-cyan-500 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-cyan-300 mb-2 font-semibold text-sm">
+              <label htmlFor="password" className="block text-cyan-300 mb-2 font-semibold text-sm">
                 Password
               </label>
               <input
+                id="password"
+                name="password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
                 placeholder="Minimal 6 karakter"
+                autoComplete={mode === "login" ? "current-password" : "new-password"}
                 className="w-full bg-slate-900/80 text-white rounded-xl p-3 border border-slate-700 focus:border-cyan-500 outline-none"
               />
             </div>

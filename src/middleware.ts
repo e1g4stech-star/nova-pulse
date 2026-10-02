@@ -4,13 +4,9 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
-  // Cek semua kemungkinan nama cookie session NextAuth
-  const sessionCookie =
-    req.cookies.get("next-auth.session-token") ||
-    req.cookies.get("__Secure-next-auth.session-token") ||
-    req.cookies.get("__Host-next-auth.session-token");
-
-  const isLoggedIn = !!sessionCookie;
+  // Cek custom session cookie
+  const sessionCookie = req.cookies.get("nova_session");
+  const isLoggedIn = !!sessionCookie?.value;
 
   // Halaman publik
   const isPublicPath =

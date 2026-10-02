@@ -2,13 +2,47 @@
 
 import { useSession, signOut } from "next-auth/react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+
+interface CurrentUser {
+  id: string;
+  email: string;
+  name: string | null;
+}
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
+  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (status === "loading") return null;
+  useEffect(() => {
+    async function fetchMe() {
+      try {
+        const res = await fetch("/api/auth/me");
+        const json = await res.json();
+        if (json.success) setUser(json.data.user);
+      } catch {
+        // ignore
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchMe();
+  }, [pathname]);
+
+  async function handleLogout() {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.push("/login");
+      router.refresh();
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  if (loading) return null;
 
   const navItems = [
     { href: "/dashboard", label: "Dashboard" },
@@ -55,13 +89,13 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          {session?.user && (
+          {user && (
             <>
               <span className="text-slate-400 text-sm hidden md:block">
-                {session.user.email}
+                {user.email}
               </span>
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
+                onClick={handleLogout}
                 className="bg-red-500/20 text-red-300 px-3 py-1.5 rounded-lg text-sm hover:bg-red-500/30 transition"
               >
                 Logout
