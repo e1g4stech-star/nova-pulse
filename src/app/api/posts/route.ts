@@ -1,13 +1,13 @@
 ﻿import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { getCurrentUser } from "@/lib/custom-auth";
 
 // GET - Ambil postingan MILIK USER YANG LOGIN
 export async function GET() {
   try {
-    const session = await auth();
+    const user = await getCurrentUser();
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -15,7 +15,7 @@ export async function GET() {
     }
 
     const posts = await prisma.post.findMany({
-      where: { userId: session.user.id },
+      where: { userId: user.id },
       orderBy: { createdAt: "desc" },
     });
 
@@ -32,9 +32,9 @@ export async function GET() {
 // POST - Buat postingan baru untuk user yang login
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
+    const user = await getCurrentUser();
 
-    if (!session?.user?.id) {
+    if (!user) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
@@ -53,7 +53,7 @@ export async function POST(req: NextRequest) {
 
     const post = await prisma.post.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         platform,
         title,
         desc: desc || "",

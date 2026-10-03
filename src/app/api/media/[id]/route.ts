@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/custom-auth";
 import { deleteFile } from "@/lib/blob";
 
 export const runtime = "nodejs";
 
 export async function DELETE(req: NextRequest, context: any) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -19,7 +19,7 @@ export async function DELETE(req: NextRequest, context: any) {
       return NextResponse.json({ error: "Media tidak ditemukan" }, { status: 404 });
     }
 
-    if (media.userId !== session.user.id) {
+    if (media.userId !== user.id) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 

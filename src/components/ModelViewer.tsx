@@ -1,34 +1,25 @@
 "use client";
 
-import { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useGLTF, Environment, Center } from "@react-three/drei";
-
-function Model({ url }: { url: string }) {
-  const { scene } = useGLTF(url);
-  return (
-    <Center>
-      <primitive object={scene} />
-    </Center>
-  );
-}
-
 interface Props {
   src: string;
 }
 
 export default function ModelViewer({ src }: Props) {
   return (
-    <div className="w-full h-[500px] bg-slate-900 rounded-xl overflow-hidden">
-      <Canvas camera={{ position: [0, 0, 5], fov: 50 }}>
-        <ambientLight intensity={0.7} />
-        <directionalLight position={[10, 10, 5]} intensity={1} />
-        <Suspense fallback={null}>
-          <Model url={src} />
-          <Environment preset="city" />
-        </Suspense>
-        <OrbitControls enablePan enableZoom enableRotate />
-      </Canvas>
+    <div className="w-full h-[400px] bg-slate-900 rounded-xl flex flex-col items-center justify-center text-center p-6">
+      <div className="text-6xl mb-4">🎮</div>
+      <p className="text-white font-bold mb-2">3D Model Viewer</p>
+      <p className="text-slate-400 text-sm mb-4">
+        Preview 3D model akan tersedia di versi berikutnya.
+      </p>
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="bg-cyan-500/20 text-cyan-300 px-4 py-2 rounded-lg text-sm hover:bg-cyan-500/30 transition"
+      >
+        ⇩ Download Model (.glb)
+      </a>
     </div>
   );
 }

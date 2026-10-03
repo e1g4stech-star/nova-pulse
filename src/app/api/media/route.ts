@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getCurrentUser } from "@/lib/custom-auth";
 import { uploadFile, detectFileType } from "@/lib/blob";
 
 export const runtime = "nodejs";
@@ -8,15 +8,15 @@ export const maxDuration = 60;
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const { searchParams } = new URL(req.url);
     const type = searchParams.get("type");
 
-    const where: any = { userId: session.user.id };
+    const where: any = { userId: user.id };
     if (type && type !== "all") where.fileType = type;
 
     const media = await prisma.media.findMany({
@@ -34,8 +34,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
+    const user = await getCurrentUser();
+    if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
 
     const media = await prisma.media.create({
       data: {
-        userId: session.user.id,
+        userId: user.id,
         fileName: file.name,
         fileUrl: result.url,
         fileKey: result.key,

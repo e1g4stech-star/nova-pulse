@@ -1,12 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
 import Navbar from "@/components/Navbar";
-
-const VideoViewer = dynamic(() => import("@/components/VideoViewer"), { ssr: false });
-const ModelViewer = dynamic(() => import("@/components/ModelViewer"), { ssr: false });
-const VideoTrimmer = dynamic(() => import("@/components/VideoTrimmer"), { ssr: false });
 
 interface Media {
   id: string;
@@ -35,7 +30,6 @@ export default function MediaStudioPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [previewItem, setPreviewItem] = useState<Media | null>(null);
-  const [showTrimmer, setShowTrimmer] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function fetchMedia() {
@@ -139,7 +133,6 @@ export default function MediaStudioPage() {
 
   function closePreview() {
     setPreviewItem(null);
-    setShowTrimmer(false);
   }
 
   return (
@@ -258,8 +251,9 @@ export default function MediaStudioPage() {
                       />
                     )}
                     {item.fileType === "3d" && (
-                      <div className="w-full h-full flex items-center justify-center text-5xl">
-                        🎮
+                      <div className="w-full h-full flex flex-col items-center justify-center text-5xl gap-2">
+                        <span>🎮</span>
+                        <span className="text-xs text-slate-500">3D Model</span>
                       </div>
                     )}
                     <span className="absolute top-2 left-2 px-2 py-1 bg-slate-900/80 text-cyan-300 text-xs rounded font-bold">
@@ -324,31 +318,37 @@ export default function MediaStudioPage() {
               )}
 
               {previewItem.fileType === "video" && (
-                <>
-                  <VideoViewer
-                    src={previewItem.fileUrl}
-                    fileName={previewItem.fileName}
-                  />
-                  <button
-                    onClick={() => setShowTrimmer(!showTrimmer)}
-                    className="mt-4 w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-3 rounded-xl"
-                  >
-                    {showTrimmer ? "Tutup Trimmer" : "✂️ Trim Video"}
-                  </button>
-                  {showTrimmer && (
-                    <div className="mt-4">
-                      <VideoTrimmer
-                        src={previewItem.fileUrl}
-                        fileName={previewItem.fileName}
-                      />
-                    </div>
-                  )}
-                </>
+                <video
+                  src={previewItem.fileUrl}
+                  controls
+                  className="w-full rounded-xl max-h-[600px]"
+                />
               )}
 
               {previewItem.fileType === "3d" && (
-                <ModelViewer src={previewItem.fileUrl} />
+                <div className="w-full h-[400px] bg-slate-800 rounded-xl flex flex-col items-center justify-center text-center p-6">
+                  <div className="text-6xl mb-4">🎮</div>
+                  <p className="text-white font-bold mb-2">
+                    {previewItem.fileName}
+                  </p>
+                  <p className="text-slate-400 text-sm mb-4">
+                    3D Model Viewer akan segera hadir.
+                  </p>
+                  <a
+                    href={previewItem.fileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="bg-cyan-500/20 text-cyan-300 px-4 py-2 rounded-lg text-sm hover:bg-cyan-500/30 transition"
+                  >
+                    ⇩ Download Model (.glb)
+                  </a>
+                </div>
               )}
+
+              <div className="mt-4 text-slate-500 text-xs">
+                {formatSize(previewItem.fileSize)} • Uploaded{" "}
+                {new Date(previewItem.createdAt).toLocaleString("id-ID")}
+              </div>
             </div>
           </div>
         )}
