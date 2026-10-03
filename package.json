@@ -21,7 +21,7 @@
     "@vercel/blob": "^0.27.0",
     "bcryptjs": "^3.0.3",
     "jose": "^5.9.6",
-    "next": "15.1.0",
+    "next": "^15.5.27",
     "next-auth": "^5.0.0-beta.25",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -38,5 +38,10 @@
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "allowScripts": {
+    "prisma@6.19.3": true,
+    "@prisma/client@6.19.3": true,
+    "@prisma/engines@6.19.3": true
   }
 }
