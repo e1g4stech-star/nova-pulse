@@ -45,12 +45,15 @@ export default function Navbar() {
   if (loading) return null;
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard" },
-    { href: "/ai-studio", label: "AI Studio" },
-    { href: "/media-studio", label: "Media" },
-    { href: "/posts", label: "Posts" },
-    { href: "/finance", label: "Keuangan" },
-  ];
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/ai-studio", label: "AI Studio" },
+  { href: "/ai-chat", label: "AI Chat" },
+  { href: "/ai-agent", label: "AI Agent" },
+  { href: "/media-studio", label: "Media" },
+  { href: "/kalender", label: "Kalender" },
+  { href: "/posts", label: "Posts" },
+  { href: "/finance", label: "Keuangan" },
+];
 
   function isActive(href: string) {
     if (href === "/dashboard") return pathname === "/dashboard";
