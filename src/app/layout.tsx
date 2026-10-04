@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
+import { SettingsProvider } from "@/lib/settings-context";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,9 +16,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="id">
+    <html lang="id" suppressHydrationWarning>
       <body className={inter.className}>
-        <SessionProvider>{children}</SessionProvider>
+        <SettingsProvider>{children}</SettingsProvider>
       </body>
     </html>
   );

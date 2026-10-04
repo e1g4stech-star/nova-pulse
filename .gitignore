@@ -42,3 +42,9 @@ next-env.d.ts
 
 .vercel
 .env*
+
+# Additional ignores
+.env.local
+*.bak
+dev.log
+*.log

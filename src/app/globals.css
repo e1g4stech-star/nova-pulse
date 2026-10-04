@@ -1,26 +1,179 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --theme-bg-primary: #0a0e1a;
+  --theme-bg-secondary: #0f1423;
+  --theme-bg-tertiary: #1a1f35;
+  --theme-text-primary: #e2e8f0;
+  --theme-text-secondary: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-border: rgba(6, 182, 212, 0.2);
+  --theme-card-bg: rgba(15, 20, 35, 0.7);
+  --accent-color: #5ee7ff;
+  --accent-color-rgb: 94, 231, 255;
+  --accent-glow: rgba(94, 231, 255, 0.3);
+  --accent-soft: rgba(94, 231, 255, 0.15);
+  --font-base: 15px;
+  --font-sm: 13px;
+  --font-lg: 18px;
+  --font-xl: 22px;
+  --spacing-scale: 1;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  font-size: var(--font-base);
+  background: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--theme-bg-primary);
+  color: var(--theme-text-primary);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+html[data-compact="true"] {
+  font-size: calc(var(--font-base) * 0.95);
+}
+
+/* ============================================================
+   THEME OVERRIDES — timpa Tailwind hardcoded class
+   ============================================================ */
+
+/* Backgrounds */
+.bg-slate-900,
+.bg-slate-900\/80,
+.bg-slate-900\/50,
+.bg-slate-950,
+.bg-slate-950\/40,
+.bg-slate-950\/50,
+.bg-slate-800,
+.bg-slate-800\/50 {
+  background-color: var(--theme-bg-secondary) !important;
+}
+
+.bg-slate-900\/80.backdrop-blur,
+.bg-slate-900\/80 {
+  background-color: var(--theme-bg-secondary) !important;
+}
+
+/* Gradient backgrounds - override ke theme gradient */
+.bg-gradient-to-br.from-slate-900,
+.bg-gradient-to-br.from-slate-950,
+.bg-gradient-to-br.from-slate-900.via-purple-900,
+.bg-gradient-to-br.from-slate-950.via-purple-950\/40 {
+  background: var(--theme-bg-primary) !important;
+}
+
+/* Navbar override */
+nav.bg-slate-900\/80,
+nav.sticky.top-0 {
+  background-color: var(--theme-bg-secondary) !important;
+  border-color: var(--theme-border) !important;
+}
+
+/* Text colors */
+.text-slate-100,
+.text-slate-200,
+.text-white {
+  color: var(--theme-text-primary) !important;
+}
+
+.text-slate-300,
+.text-slate-400 {
+  color: var(--theme-text-secondary) !important;
+}
+
+.text-slate-500,
+.text-slate-600 {
+  color: var(--theme-text-muted) !important;
+}
+
+/* Borders */
+.border-slate-700,
+.border-slate-800,
+.border-cyan-500\/10,
+.border-cyan-500\/20,
+.border-cyan-500\/30 {
+  border-color: var(--theme-border) !important;
+}
+
+/* Card-like elements */
+.bg-slate-800\/50,
+.bg-slate-800\/30,
+.bg-slate-900\/50 {
+  background-color: var(--theme-card-bg) !important;
+}
+
+/* Accent overrides — ganti cyan jadi accent color */
+.text-cyan-400,
+.text-cyan-300,
+.text-cyan-500 {
+  color: var(--accent-color) !important;
+}
+
+.bg-cyan-500,
+.bg-cyan-400 {
+  background-color: var(--accent-color) !important;
+}
+
+.bg-cyan-500\/10,
+.bg-cyan-500\/20 {
+  background-color: var(--accent-soft) !important;
+}
+
+.border-cyan-400,
+.border-cyan-500 {
+  border-color: var(--accent-color) !important;
+}
+
+.hover\:bg-cyan-400:hover,
+.hover\:bg-cyan-500:hover {
+  background-color: var(--accent-color) !important;
+  filter: brightness(1.1);
+}
+
+.hover\:text-cyan-400:hover {
+  color: var(--accent-color) !important;
+}
+
+/* Purple accent — biarkan untuk brand, jangan override */
+
+/* Light theme specific fixes */
+html.light nav.sticky.top-0,
+html.light nav.bg-slate-900\/80 {
+  background-color: var(--theme-bg-secondary) !important;
+  border-color: var(--theme-border) !important;
+}
+
+html.light .text-slate-300,
+html.light .text-slate-400 {
+  color: var(--theme-text-secondary) !important;
+}
+
+html.light .bg-slate-800\/50,
+html.light .bg-slate-800\/30 {
+  background-color: var(--theme-bg-tertiary) !important;
+}
+
+/* Shadow adjustments */
+.shadow-lg,
+.shadow-xl {
+  --tw-shadow-color: rgba(var(--accent-color-rgb), 0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--theme-bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--accent-soft); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-glow); }
+
+/* Smooth theme transition untuk semua element */
+*,
+*::before,
+*::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 250ms;
+  transition-timing-function: ease;
 }

@@ -94,6 +94,17 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {user && (
             <>
+              <Link
+                href="/settings"
+                title="Pengaturan"
+                className={`px-3 py-1.5 rounded-lg text-sm transition ${
+                  pathname?.startsWith("/settings")
+                    ? "text-cyan-400 bg-cyan-500/10 font-semibold"
+                    : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
+                }`}
+              >
+                ⚙️ Pengaturan
+              </Link>
               <span className="text-slate-400 text-sm hidden md:block">
                 {user.email}
               </span>
