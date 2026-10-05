@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useCurrentUser } from '@/hooks/useCurrentUser';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface CurrentUser {
   id: string;
@@ -95,6 +96,7 @@ export default function Navbar() {
         <div className="flex items-center gap-3">
           {user && (
             <>
+	      <ThemeToggle />
               <Link
                 href="/settings"
                 title="Pengaturan"
