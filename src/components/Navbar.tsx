@@ -53,6 +53,7 @@ export default function Navbar() {
   { href: "/ai-agent", label: "AI Agent" },
   { href: "/media-studio", label: "Media" },
   { href: "/kalender", label: "Kalender" },
+  { href: "/ai-calendar", label: "AI Calendar" },
   { href: "/posts", label: "Posts" },
   { href: "/finance", label: "Keuangan" },
   { href: "/affiliate", label: "Affiliate" },
