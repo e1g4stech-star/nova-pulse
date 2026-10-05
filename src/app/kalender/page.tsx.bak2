@@ -439,10 +439,7 @@ export default function KalenderPage() {
                   return (
                     <div
                       key={idx}
-                      onDragOver={(e) => { if (day && draggedEventId) { e.preventDefault(); setDragOverDay(day); } }}
-                      onDragLeave={() => setDragOverDay(null)}
-                      onDrop={(e) => { e.preventDefault(); if (day) handleDropOnDay(day); }}
-                      onClick={() => day && !draggedEventId && openEventForm(day)}
+                      onClick={() => day && openEventForm(day)}
                       className={`min-h-[100px] rounded-lg p-2 cursor-pointer transition border ${
                         day
                           ? today
@@ -464,9 +461,6 @@ export default function KalenderPage() {
                             {dayEvents.slice(0, 3).map((event) => (
                               <div
                                 key={event.id}
-                                draggable
-                                onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", event.id); setDraggedEventId(event.id); }}
-                                onDragEnd={() => { setDraggedEventId(null); setDragOverDay(null); }}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                 }}
