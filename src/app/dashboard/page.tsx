@@ -1,7 +1,8 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+
 import Navbar from "@/components/Navbar";
 import Link from "next/link";
 
@@ -17,7 +18,7 @@ interface Post {
 }
 
 export default function DashboardPage() {
-  const { data: session } = useSession();
+  const { user: session } = useCurrentUser();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
