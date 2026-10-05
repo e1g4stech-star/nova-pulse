@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSettings, SettingsUpdate, UserSettings } from '@/lib/settings-context';
 import { THEMES, ACCENT_PRESETS } from '@/lib/theme-engine';
 import BackupSection from '@/components/BackupSection';
+import TestEmailButton from '@/components/TestEmailButton';
 
 function Section({
   title,
@@ -473,6 +474,10 @@ export default function SettingsPanel() {
               color: 'var(--theme-text-primary)',
             }}
           />
+        </Row>
+
+        <Row label="Test Email" hint="Kirim test reminder ke email kamu sekarang">
+          <TestEmailButton />
         </Row>
       </Section>
 
