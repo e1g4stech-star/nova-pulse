@@ -48,3 +48,5 @@ next-env.d.ts
 *.bak
 dev.log
 *.log
+
+*.backup
