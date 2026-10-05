@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useSettings, SettingsUpdate, UserSettings } from '@/lib/settings-context';
 import { THEMES, ACCENT_PRESETS } from '@/lib/theme-engine';
+import BackupSection from '@/components/BackupSection';
 
 function Section({
   title,
@@ -513,6 +514,10 @@ export default function SettingsPanel() {
             ]}
           />
         </Row>
+      </Section>
+
+      <Section title="Data & Backup" description="Export atau restore data kamu">
+        <BackupSection />
       </Section>
 
       <p className="text-xs text-center pt-2" style={{ color: 'var(--theme-text-muted)' }}>
