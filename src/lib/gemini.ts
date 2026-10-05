@@ -1,4 +1,4 @@
-﻿import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
@@ -16,11 +16,12 @@ export interface GeneratedContent {
 // Prioritas: gemini-3.5-flash (terbukti stabil)
 // =========================================================
 const TEXT_MODELS = [
-  "gemini-3.5-flash",       // ✅ Yang terbukti jalan
-  "gemini-3.6-flash",       // Fallback 1
-  "gemini-3.7-flash",       // Fallback 2
-  "gemini-2.5-flash",       // Fallback stabil
-  "gemini-3.8-flash",       // Terbaru (kadang 503)
+  "gemini-3.6-flash",           // ✅ Primary (works, stabil)
+  "gemini-3.5-flash-lite",      // ✅ Fallback 1 (lite, fast)
+  "gemini-flash-lite-latest",   // ✅ Fallback 2 (auto-latest lite)
+  "gemini-3.5-flash",           // ⚠️ Fallback 3 (kadang 503)
+  "gemini-3.7-flash",           // ⚠️ Fallback 4
+  "gemini-3.8-flash",           // ⚠️ Fallback 5 (terbaru)
 ];
 
 export async function generateContent(idea: string): Promise<GeneratedContent> {
