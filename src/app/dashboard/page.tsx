@@ -78,7 +78,7 @@ export default function DashboardPage() {
             <h1 className="text-4xl md:text-5xl font-bold mb-3">
               Halo,{" "}
               <span className="bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent">
-                {session?.user?.email?.split("@")[0] || "Creator"}
+                {session?.email?.split("@")[0] || "Creator"}
               </span>
             </h1>
             <p className="text-slate-400">

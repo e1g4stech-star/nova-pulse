@@ -3,7 +3,7 @@ import { put, del } from "@vercel/blob";
 export interface UploadResult {
   url: string;
   key: string;
-  size: number;
+  
 }
 
 export async function uploadFile(
@@ -23,7 +23,6 @@ export async function uploadFile(
   return {
     url: blob.url,
     key: blob.pathname,
-    size: blob.size || 0,
   };
 }
 

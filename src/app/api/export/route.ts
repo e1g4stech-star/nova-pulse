@@ -61,7 +61,16 @@ export async function GET() {
     );
 
     const affiliateClicks = await safeQuery(async () =>
-      await prisma.affiliateClick.findMany({ where: { userId } })
+      await prisma.affiliateClick.findMany({
+        where: {
+          link: { userId },
+        },
+        include: {
+          link: {
+            select: { id: true, slug: true, title: true },
+          },
+        },
+      })
     );
 
     const socialConnections = await safeQuery(async () =>

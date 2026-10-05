@@ -77,7 +77,7 @@ export async function POST(req: NextRequest) {
               amount: Number(t.amount) || 0,
               type: t.type || 'expense',
               category: t.category || 'other',
-              description: t.description || '',
+              note: t.description || '',
             },
           });
           stats.transactions++;

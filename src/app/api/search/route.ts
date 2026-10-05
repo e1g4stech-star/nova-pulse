@@ -42,10 +42,10 @@ export async function GET(req: NextRequest) {
       prisma.transaction.findMany({
         where: {
           userId,
-          OR: [{ description: contains }, { category: contains }],
+          OR: [{ note: contains }, { category: contains }],
         },
         take: 5,
-        select: { id: true, description: true, amount: true, category: true, type: true },
+        select: { id: true, note: true, amount: true, category: true, type: true },
       }).catch(() => []),
 
       prisma.calendarEvent.findMany({
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       ...transactions.map((t) => ({
         id: t.id,
         type: 'transaction',
-        title: t.description || t.category,
+        title: t.note || t.category,
         subtitle: t.type === 'income' ? 'Pemasukan' : 'Pengeluaran',
         href: '/finance',
         meta: 'Rp ' + (t.amount || 0).toLocaleString('id-ID'),
