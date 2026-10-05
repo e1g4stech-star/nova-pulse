@@ -1,6 +1,8 @@
-"use client";
+﻿"use client";
 
 
+
+import SettingsPanel from "@/components/SettingsPanel";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -99,17 +101,7 @@ export default function Navbar() {
           {user && (
             <>
 	      <ThemeToggle />
-              <Link
-                href="/settings"
-                title="Pengaturan"
-                className={`px-3 py-1.5 rounded-lg text-sm transition ${
-                  pathname?.startsWith("/settings")
-                    ? "text-cyan-400 bg-cyan-500/10 font-semibold"
-                    : "text-slate-300 hover:text-cyan-400 hover:bg-slate-800/50"
-                }`}
-              >
-                ⚙️ Pengaturan
-              </Link>
+              <SettingsPanel />
               <span className="text-slate-400 text-sm hidden md:block">
                 {user.email}
               </span>
@@ -145,3 +137,5 @@ export default function Navbar() {
     </nav>
   );
 }
+
+

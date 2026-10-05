@@ -16,12 +16,12 @@ export interface GeneratedContent {
 // Prioritas: gemini-3.5-flash (terbukti stabil)
 // =========================================================
 const TEXT_MODELS = [
-  "gemini-3.6-flash",           // ✅ Primary (works, stabil)
-  "gemini-3.5-flash-lite",      // ✅ Fallback 1 (lite, fast)
-  "gemini-flash-lite-latest",   // ✅ Fallback 2 (auto-latest lite)
-  "gemini-3.5-flash",           // ⚠️ Fallback 3 (kadang 503)
-  "gemini-3.7-flash",           // ⚠️ Fallback 4
-  "gemini-3.8-flash",           // ⚠️ Fallback 5 (terbaru)
+  "gemini-3.6-flash",           // Primary (verified works)
+  "gemini-3.5-flash-lite",      // Fallback 1 (lite, fast)
+  "gemini-flash-lite-latest",   // Fallback 2 (auto-latest lite)
+  "gemini-3.5-flash",           // Fallback 3
+  "gemini-3.7-flash",           // Fallback 4
+  "gemini-3.8-flash",           // Fallback 5
 ];
 
 export async function generateContent(idea: string): Promise<GeneratedContent> {
