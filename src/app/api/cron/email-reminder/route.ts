@@ -37,10 +37,13 @@ export async function GET(req: NextRequest) {
       ? String(parseInt(targetHour)).padStart(2, '0') + ':00'
       : String(now.getHours()).padStart(2, '0') + ':00';
 
+    // Support ?hour=all → kirim ke SEMUA user yang emailReminder=true
+    const sendToAll = targetHour === 'all';
+
     const users = await prisma.userSettings.findMany({
       where: {
         emailReminder: true,
-        summaryTime: currentHour,
+        ...(sendToAll ? {} : { summaryTime: currentHour }),
       },
       include: {
         user: {

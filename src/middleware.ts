@@ -1,4 +1,4 @@
-﻿import { NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(req: NextRequest) {
@@ -12,9 +12,15 @@ export function middleware(req: NextRequest) {
   const isPublicPath =
     pathname === "/" ||
     pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/api/cron") ||
+    pathname.startsWith("/r/") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon");
+    pathname.startsWith("/favicon") ||
+    pathname === "/sw.js" ||
+    pathname === "/manifest.webmanifest" || pathname === "/manifest.json" ||
+    pathname.startsWith("/icons/");
 
   // Kalau di /login & sudah login → redirect ke /ai-studio
   if (pathname.startsWith("/login") && isLoggedIn) {
@@ -31,6 +37,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|js|ico|webmanifest)$).*)",
   ],
 };
