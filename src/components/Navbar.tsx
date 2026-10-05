@@ -55,6 +55,7 @@ export default function Navbar() {
   { href: "/kalender", label: "Kalender" },
   { href: "/posts", label: "Posts" },
   { href: "/finance", label: "Keuangan" },
+  { href: "/affiliate", label: "Affiliate" },
 ];
 
   function isActive(href: string) {
