@@ -290,6 +290,13 @@ export default function SettingsPanel() {
           <section className="pt-6 border-t border-slate-700">
             <h3 className="text-cyan-400 text-sm font-bold tracking-widest mb-4">💾 DATA</h3>
 
+            <a
+              href="/settings/backup"
+              className="block w-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-300 rounded-xl p-3 mb-2 hover:bg-cyan-500/20 transition text-sm text-center font-semibold"
+            >
+              📦 Buka Export & Backup
+            </a>
+
             <button
               onClick={exportData}
               className="w-full bg-slate-800/50 border border-slate-700 text-slate-300 rounded-xl p-3 mb-2 hover:border-cyan-500/30 transition text-sm"
@@ -310,3 +317,4 @@ export default function SettingsPanel() {
     document.body
   );
 }
+

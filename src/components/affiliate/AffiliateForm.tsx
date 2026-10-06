@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useState } from 'react';
 import type { AffiliateLink } from '@/app/affiliate/page';
@@ -92,7 +92,7 @@ export default function AffiliateForm({ editing, onClose, onSuccess }: Props) {
           style={{ borderColor: 'var(--theme-border)' }}
         >
           <h2 className="text-lg font-bold" style={{ color: 'var(--theme-text-primary)' }}>
-            {editing ? '✏️ Edit Link' : '➕ Link Baru'}
+            {editing ? 'âœï¸ Edit Link' : ' Link Baru'}
           </h2>
           <button
             type="button"

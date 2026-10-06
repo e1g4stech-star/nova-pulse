@@ -1,10 +1,11 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import Navbar from '@/components/Navbar';
 import AffiliateStats from '@/components/affiliate/AffiliateStats';
 import AffiliateTable from '@/components/affiliate/AffiliateTable';
 import AffiliateForm from '@/components/affiliate/AffiliateForm';
+import EarningsChart from '@/components/affiliate/EarningsChart';
 
 export interface AffiliateLink {
   id: string;
@@ -82,6 +83,8 @@ export default function AffiliatePage() {
           )}
 
           <AffiliateStats links={links} loading={loading} />
+
+          <EarningsChart links={links} loading={loading} />
 
           <AffiliateTable
             links={links}
