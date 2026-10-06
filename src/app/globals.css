@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 :root {
   --theme-bg-primary: #0a0e1a;
@@ -24,13 +24,13 @@ html {
   font-size: var(--font-base);
   background: var(--theme-bg-primary);
   color: var(--theme-text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
+  
 }
 
 body {
   background: var(--theme-bg-primary);
   color: var(--theme-text-primary);
-  transition: background 0.3s ease, color 0.3s ease;
+  
 }
 
 html[data-compact="true"] {
@@ -38,7 +38,7 @@ html[data-compact="true"] {
 }
 
 /* ============================================================
-   THEME OVERRIDES — timpa Tailwind hardcoded class
+   THEME OVERRIDES â€” timpa Tailwind hardcoded class
    ============================================================ */
 
 /* Backgrounds */
@@ -106,7 +106,7 @@ nav.sticky.top-0 {
   background-color: var(--theme-card-bg) !important;
 }
 
-/* Accent overrides — ganti cyan jadi accent color */
+/* Accent overrides â€” ganti cyan jadi accent color */
 .text-cyan-400,
 .text-cyan-300,
 .text-cyan-500 {
@@ -138,7 +138,7 @@ nav.sticky.top-0 {
   color: var(--accent-color) !important;
 }
 
-/* Purple accent — biarkan untuk brand, jangan override */
+/* Purple accent â€” biarkan untuk brand, jangan override */
 
 /* Light theme specific fixes */
 html.light nav.sticky.top-0,
@@ -177,3 +177,145 @@ html.light .bg-slate-800\/30 {
   transition-duration: 250ms;
   transition-timing-function: ease;
 }
+
+
+/* ============================================================
+   8 THEME — OVERRIDE CSS VARIABLES (html[data-theme])
+   ============================================================ */
+
+/* === NEON PULSE (default) === */
+[data-theme="neon"] {
+  --theme-bg-primary: #050a14;
+  --theme-bg-secondary: #0a1020;
+  --theme-bg-tertiary: #111827;
+  --theme-text-primary: #e2e8f0;
+  --theme-text-secondary: #94a3b8;
+  --theme-text-muted: #64748b;
+  --theme-border: rgba(94, 231, 255, 0.2);
+  --theme-card-bg: rgba(10, 16, 32, 0.7);
+  --accent-color: #5ee7ff;
+  --accent-color-rgb: 94, 231, 255;
+  --accent-glow: rgba(94, 231, 255, 0.3);
+  --accent-soft: rgba(94, 231, 255, 0.15);
+}
+
+/* === AURORA === */
+[data-theme="aurora"] {
+  --theme-bg-primary: #021a1f;
+  --theme-bg-secondary: #0a2540;
+  --theme-bg-tertiary: #0d3247;
+  --theme-text-primary: #d1fae5;
+  --theme-text-secondary: #6ee7b7;
+  --theme-text-muted: #34d399;
+  --theme-border: rgba(45, 212, 191, 0.25);
+  --theme-card-bg: rgba(2, 26, 31, 0.7);
+  --accent-color: #2dd4bf;
+  --accent-color-rgb: 45, 212, 191;
+  --accent-glow: rgba(45, 212, 191, 0.3);
+  --accent-soft: rgba(45, 212, 191, 0.15);
+}
+
+/* === CYBER === */
+[data-theme="cyber"] {
+  --theme-bg-primary: #1a0a00;
+  --theme-bg-secondary: #2a0800;
+  --theme-bg-tertiary: #3d1208;
+  --theme-text-primary: #fef3c7;
+  --theme-text-secondary: #fcd34d;
+  --theme-text-muted: #f59e0b;
+  --theme-border: rgba(251, 191, 36, 0.25);
+  --theme-card-bg: rgba(26, 10, 0, 0.7);
+  --accent-color: #fbbf24;
+  --accent-color-rgb: 251, 191, 36;
+  --accent-glow: rgba(251, 191, 36, 0.3);
+  --accent-soft: rgba(251, 191, 36, 0.15);
+}
+
+/* === PURE DARK === */
+[data-theme="dark"] {
+  --theme-bg-primary: #000000;
+  --theme-bg-secondary: #0a0a0a;
+  --theme-bg-tertiary: #171717;
+  --theme-text-primary: #e5e5e5;
+  --theme-text-secondary: #a3a3a3;
+  --theme-text-muted: #737373;
+  --theme-border: rgba(148, 163, 184, 0.15);
+  --theme-card-bg: rgba(10, 10, 10, 0.7);
+  --accent-color: #94a3b8;
+  --accent-color-rgb: 148, 163, 184;
+  --accent-glow: rgba(148, 163, 184, 0.3);
+  --accent-soft: rgba(148, 163, 184, 0.15);
+}
+
+/* === LIGHT CLEAN === */
+[data-theme="light"] {
+  --theme-bg-primary: #f8fafc;
+  --theme-bg-secondary: #ffffff;
+  --theme-bg-tertiary: #f1f5f9;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #475569;
+  --theme-text-muted: #94a3b8;
+  --theme-border: rgba(2, 132, 199, 0.2);
+  --theme-card-bg: rgba(255, 255, 255, 0.8);
+  --accent-color: #0284c7;
+  --accent-color-rgb: 2, 132, 199;
+  --accent-glow: rgba(2, 132, 199, 0.3);
+  --accent-soft: rgba(2, 132, 199, 0.1);
+}
+
+/* === OCEAN === */
+[data-theme="ocean"] {
+  --theme-bg-primary: #042f2e;
+  --theme-bg-secondary: #0c4a6e;
+  --theme-bg-tertiary: #0e5a78;
+  --theme-text-primary: #cffafe;
+  --theme-text-secondary: #67e8f9;
+  --theme-text-muted: #22d3ee;
+  --theme-border: rgba(6, 182, 212, 0.25);
+  --theme-card-bg: rgba(4, 47, 46, 0.7);
+  --accent-color: #06b6d4;
+  --accent-color-rgb: 6, 182, 212;
+  --accent-glow: rgba(6, 182, 212, 0.3);
+  --accent-soft: rgba(6, 182, 212, 0.15);
+}
+
+/* === SUNSET === */
+[data-theme="sunset"] {
+  --theme-bg-primary: #2a0a1a;
+  --theme-bg-secondary: #4a1d1d;
+  --theme-bg-tertiary: #5a2828;
+  --theme-text-primary: #ffe4e6;
+  --theme-text-secondary: #fda4af;
+  --theme-text-muted: #fb7185;
+  --theme-border: rgba(251, 146, 60, 0.25);
+  --theme-card-bg: rgba(42, 10, 26, 0.7);
+  --accent-color: #fb923c;
+  --accent-color-rgb: 251, 146, 60;
+  --accent-glow: rgba(251, 146, 60, 0.3);
+  --accent-soft: rgba(251, 146, 60, 0.15);
+}
+
+/* === FOREST === */
+[data-theme="forest"] {
+  --theme-bg-primary: #052e16;
+  --theme-bg-secondary: #064e3b;
+  --theme-bg-tertiary: #065f46;
+  --theme-text-primary: #d1fae5;
+  --theme-text-secondary: #6ee7b7;
+  --theme-text-muted: #34d399;
+  --theme-border: rgba(16, 185, 129, 0.25);
+  --theme-card-bg: rgba(5, 46, 22, 0.7);
+  --accent-color: #10b981;
+  --accent-color-rgb: 16, 185, 129;
+  --accent-glow: rgba(16, 185, 129, 0.3);
+  --accent-soft: rgba(16, 185, 129, 0.15);
+}
+
+
+
+/* Prevent FOUC — paksa html & body pakai var(--theme-bg-primary) sejak awal */
+html {
+  background-color: var(--theme-bg-primary, #050a14);
+  color: var(--theme-text-primary, #e2e8f0);
+}
+

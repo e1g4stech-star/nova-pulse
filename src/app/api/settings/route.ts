@@ -11,6 +11,17 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userExists = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { id: true },
+    });
+    if (!userExists) {
+      return NextResponse.json(
+        { error: "Session invalid. Login ulang." },
+        { status: 401 }
+      );
+    }
+
     let settings = await prisma.userSettings.findUnique({
       where: { userId: user.id },
     });
@@ -74,3 +85,4 @@ export async function DELETE() {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+

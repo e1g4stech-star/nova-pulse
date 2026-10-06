@@ -1,24 +1,17 @@
-'use client';
+﻿'use client';
 
 import { useSettings } from '@/lib/settings-context';
-
-const THEME_CYCLE = ['neon', 'dark', 'light', 'system'] as const;
-type ThemeId = typeof THEME_CYCLE[number];
-
-const THEME_META: Record<ThemeId, { icon: string; label: string }> = {
-  neon: { icon: '⚡', label: 'Neon Pulse' },
-  dark: { icon: '🌙', label: 'Pure Dark' },
-  light: { icon: '☀️', label: 'Light Clean' },
-  system: { icon: '💻', label: 'System' },
-};
+import { THEME_CYCLE, getThemeMeta, type ThemeId } from '@/lib/themes';
 
 export default function ThemeToggle() {
   const { settings, updateSettings } = useSettings();
 
   if (!settings) return null;
 
-  const current = (settings.theme as ThemeId) || 'neon';
-  const meta = THEME_META[current] ?? THEME_META.neon;
+  const current: ThemeId = (THEME_CYCLE as readonly string[]).includes(settings.theme)
+    ? (settings.theme as ThemeId)
+    : 'neon';
+  const meta = getThemeMeta(current);
 
   const cycleTheme = () => {
     const idx = THEME_CYCLE.indexOf(current);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useSettings } from "@/lib/settings-context";
+import { THEME_LIST } from "@/lib/themes";
 
 export default function SettingsPanel() {
   const { settings, updateSettings, resetSettings } = useSettings();
@@ -89,12 +90,7 @@ export default function SettingsPanel() {
             <div className="mb-4">
               <label className="block text-slate-300 text-sm mb-2 font-semibold">Theme</label>
               <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "neon", label: "Neon", color: "from-cyan-400 to-purple-500" },
-                  { id: "aurora", label: "Aurora", color: "from-green-400 to-blue-500" },
-                  { id: "cyber", label: "Cyber", color: "from-yellow-400 to-red-500" },
-                  { id: "minimal", label: "Minimal", color: "from-slate-400 to-slate-600" },
-                ].map((t) => (
+                {THEME_LIST.map((t) => (
                   <button
                     key={t.id}
                     onClick={() => handleUpdate({ theme: t.id })}

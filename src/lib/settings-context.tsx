@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 
@@ -80,11 +80,8 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (settings.theme === "neon") {
-      document.body.removeAttribute("data-theme");
-    } else {
-      document.body.setAttribute("data-theme", settings.theme);
-    }
+    document.documentElement.setAttribute("data-theme", settings.theme);
+    document.body.setAttribute("data-theme", settings.theme);
 
     const sizeMap: Record<string, string> = {
       small: "14px",
@@ -138,3 +135,4 @@ export function useSettings() {
   if (!ctx) throw new Error("useSettings must be inside SettingsProvider");
   return ctx;
 }
+
