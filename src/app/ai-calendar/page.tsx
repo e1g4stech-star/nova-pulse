@@ -109,7 +109,7 @@ export default function AICalendarPage() {
         <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
           {/* Header */}
           <div>
-            <h1 className="text-2xl font-bold">✨ AI Content Calendar</h1>
+            <h1 className="text-2xl font-bold">AI Content Calendar</h1>
             <p className="text-sm mt-1" style={{ color: 'var(--theme-text-muted)' }}>
               Generate plan konten {days} hari otomatis dengan AI
             </p>
@@ -198,7 +198,7 @@ export default function AICalendarPage() {
               className="w-full px-6 py-3 rounded-lg font-semibold transition-all hover:scale-[1.01] disabled:opacity-50"
               style={{ background: 'var(--accent-color)', color: 'var(--theme-bg-primary)' }}
             >
-              {generating ? '⏳ AI sedang generate...' : `✨ Generate ${days} Hari Plan`}
+              {generating ? 'AI sedang generate...' : `Generate ${days} Hari Plan`}
             </button>
 
             {error && (
@@ -221,7 +221,7 @@ export default function AICalendarPage() {
                 <div>
                   <h2 className="font-bold">Preview Plan</h2>
                   <p className="text-xs" style={{ color: 'var(--theme-text-muted)' }}>
-                    {plan.length} ide konten — edit langsung atau hapus
+                    {plan.length} ide konten - edit langsung atau hapus
                   </p>
                 </div>
                 <button
@@ -230,7 +230,7 @@ export default function AICalendarPage() {
                   className="px-4 py-2 rounded-lg text-sm font-semibold transition-all hover:scale-105 disabled:opacity-50"
                   style={{ background: 'var(--accent-color)', color: 'var(--theme-bg-primary)' }}
                 >
-                  {saving ? '⏳ Menyimpan...' : `💾 Save ${plan.length} ke Kalender`}
+                  {saving ? 'Menyimpan...' : `Save ${plan.length} ke Kalender`}
                 </button>
               </div>
 
@@ -295,7 +295,7 @@ export default function AICalendarPage() {
                             className="text-xs px-2 py-1 rounded"
                             style={{ background: 'rgba(239,68,68,0.1)', color: '#fca5a5' }}
                           >
-                            ×
+                            Hapus
                           </button>
                         </td>
                       </tr>
@@ -315,8 +315,12 @@ export default function AICalendarPage() {
                 color: message.type === 'success' ? '#4ade80' : '#fca5a5',
               }}
             >
-              {message.type === 'success' && <Link href="/kalender" className="underline ml-2">Buka Kalender →</Link>}
               {message.text}
+              {message.type === 'success' && (
+                <Link href="/kalender" className="underline ml-2">
+                  Buka Kalender
+                </Link>
+              )}
             </div>
           )}
         </div>

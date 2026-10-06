@@ -54,6 +54,7 @@ export default function KalenderPage() {
   const [showEventForm, setShowEventForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [eventForm, setEventForm] = useState({
+    id: "",    
     title: "",
     description: "",
     startDate: "",
@@ -195,13 +196,39 @@ export default function KalenderPage() {
     }
   }
 
-  function openEventForm(day?: number) {
+    function openEventForm(day?: number, event?: any) {
+    if (event) {
+      const start = new Date(event.startDate);
+      const end = event.endDate ? new Date(event.endDate) : null;
+      const dateStr = start.toISOString().split("T")[0];
+      const startTime = String(start.getHours()).padStart(2, "0") + ":" + String(start.getMinutes()).padStart(2, "0");
+      const endTime = end
+        ? String(end.getHours()).padStart(2, "0") + ":" + String(end.getMinutes()).padStart(2, "0")
+        : "10:00";
+
+      setSelectedDate(dateStr);
+      setEventForm({
+        id: event.id,
+        title: event.title || "",
+        description: event.description || "",
+        startDate: dateStr,
+        startTime,
+        endTime,
+        color: event.color || "cyan",
+        category: event.category || "umum",
+        platform: event.platform || "",
+      });
+      setShowEventForm(true);
+      return;
+    }
+
     const dateStr = day
       ? `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
       : `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(new Date().getDate()).padStart(2, "0")}`;
 
     setSelectedDate(dateStr);
     setEventForm({
+      id: "",
       title: "",
       description: "",
       startDate: dateStr,
@@ -223,8 +250,12 @@ export default function KalenderPage() {
       const startDate = new Date(`${eventForm.startDate}T${eventForm.startTime}:00`);
       const endDate = new Date(`${eventForm.startDate}T${eventForm.endTime}:00`);
 
-      const res = await fetch("/api/calendar", {
-        method: "POST",
+            const isEdit = Boolean(eventForm.id);
+      const url = isEdit ? `/api/calendar/${eventForm.id}` : "/api/calendar";
+      const method = isEdit ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: eventForm.title,
@@ -239,13 +270,13 @@ export default function KalenderPage() {
 
       const json = await res.json();
 
-      if (json.success) {
-        setSuccess("✅ Event berhasil ditambahkan!");
+      if (json.success || res.ok) {
+        setSuccess(isEdit ? "Event berhasil diupdate!" : "Event berhasil ditambahkan!");
         setShowEventForm(false);
         fetchEvents();
         setTimeout(() => setSuccess(""), 3000);
       } else {
-        setError(json.error || "Gagal tambah event");
+        setError(json.error || (isEdit ? "Gagal update event" : "Gagal tambah event"));
       }
     } catch (err: any) {
       setError(err.message);
@@ -462,30 +493,31 @@ export default function KalenderPage() {
                           </div>
                           <div className="space-y-1">
                             {dayEvents.slice(0, 3).map((event) => (
-                              <div
-                                key={event.id}
-                                draggable
-                                onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", event.id); setDraggedEventId(event.id); }}
-                                onDragEnd={() => { setDraggedEventId(null); setDragOverDay(null); }}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                }}
-                                className={`text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r ${
-                                  COLORS[event.color] || COLORS.cyan
-                                } text-white truncate flex justify-between items-center gap-1 group`}
-                              >
-                                <span className="truncate">{event.title}</span>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    deleteEvent(event.id);
-                                  }}
-                                  className="opacity-0 group-hover:opacity-100 text-white/80 hover:text-white"
-                                >
-                                  ×
-                                </button>
-                              </div>
-                            ))}
+  <div
+    key={event.id}
+    draggable
+    onDragStart={(e) => { e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", event.id); setDraggedEventId(event.id); }}
+    onDragEnd={() => { setDraggedEventId(null); setDragOverDay(null); }}
+    onClick={(e) => {
+      e.stopPropagation();
+      openEventForm(undefined, event);
+    }}
+    className={`text-[10px] px-1.5 py-0.5 rounded bg-gradient-to-r ${
+      COLORS[event.color] || COLORS.cyan
+    } text-white truncate flex justify-between items-center gap-1 group cursor-pointer hover:opacity-90`}
+  >
+    <span className="truncate">{event.title}</span>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        deleteEvent(event.id);
+      }}
+      className="opacity-0 group-hover:opacity-100 text-white/80 hover:text-white"
+    >
+      ×
+    </button>
+  </div>
+))}
                             {dayEvents.length > 3 && (
                               <div className="text-[10px] text-slate-400">
                                 +{dayEvents.length - 3} lagi
@@ -535,7 +567,7 @@ export default function KalenderPage() {
                             COLORS[event.color] || COLORS.cyan
                           }`}
                         />
-                        <div className="flex-1">
+                        <div className="flex-1 cursor-pointer hover:opacity-80 transition" onClick={() => openEventForm(undefined, event)}>
                           <div className="flex items-center gap-2 mb-1">
                             <span className="text-xs text-cyan-400 font-bold">
                               {start.toLocaleDateString("id-ID", {
