@@ -1,7 +1,8 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { Inter, Orbitron } from "next/font/google";
 import "./globals.css";
 import { SettingsProvider } from "@/lib/settings-context";
+import CommandPalette from "@/components/CommandPalette";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
@@ -48,7 +49,10 @@ export default function RootLayout({
             `,
           }}
         />
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider>
+          {children}
+          <CommandPalette />
+        </SettingsProvider>
       </body>
     </html>
   );
