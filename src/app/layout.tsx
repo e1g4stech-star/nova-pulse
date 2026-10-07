@@ -8,8 +8,65 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 
 export const metadata: Metadata = {
-  title: "Nova Pulse — Social Command Center",
-  description: "Pusat semua postingan media sosial dalam satu dashboard futuristik.",
+  title: {
+    default: "Nova Pulse — Content Command Center untuk Creator Indonesia",
+    template: "%s | Nova Pulse",
+  },
+  description: "Platform lengkap untuk content creator — AI untuk generate konten, kalender untuk jadwal, affiliate untuk monetize. Semua dalam satu dashboard futuristik.",
+  keywords: [
+    "content creator",
+    "AI content generator",
+    "social media manager",
+    "content calendar",
+    "affiliate manager",
+    "Indonesia",
+    "TikTok",
+    "Instagram",
+    "caption generator",
+  ],
+  authors: [{ name: "Nova Pulse" }],
+  creator: "Nova Pulse",
+  publisher: "Nova Pulse",
+  verification: {
+    google: "I5wTtAyGVtoJReX5PDMnozd5qUO6eRO58k-JSlyFpVg",
+  },
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://nova-pulse-eta.vercel.app"),
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    url: "/",
+    siteName: "Nova Pulse",
+    title: "Nova Pulse — Content Command Center untuk Creator Indonesia",
+    description: "Platform lengkap untuk content creator — AI, kalender, affiliate dalam satu dashboard.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nova Pulse",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nova Pulse — Content Command Center",
+    description: "Platform lengkap untuk content creator Indonesia.",
+    images: ["/og-image.png"],
+    creator: "@novapulse",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+  },
 };
 
 export default function RootLayout({
