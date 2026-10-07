@@ -59,6 +59,8 @@ export default function Navbar() {
   { href: "/posts", label: "Posts" },
   { href: "/finance", label: "Keuangan" },
   { href: "/affiliate", label: "Affiliate" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/billing", label: "Billing" },
 ];
 
   function isActive(href: string) {
