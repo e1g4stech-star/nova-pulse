@@ -16,6 +16,12 @@ model User {
   emailVerified DateTime?
   createdAt     DateTime  @default(now())
 
+  // Billing
+  plan          String    @default("free")
+  planExpiresAt DateTime?
+  planStartedAt DateTime?
+  planPrice     Float     @default(0)
+
   accounts       Account[]
   sessions       Session[]
   posts          Post[]
@@ -28,6 +34,7 @@ model User {
   notes          Note[]
   aiChats        AIChat[]
   settings       UserSettings?
+  subscriptions  Subscription[]
 
   @@map("users")
 }
@@ -81,7 +88,7 @@ model UserSettings {
   particlesOn Boolean @default(true)
   accentColor String  @default("#5ee7ff")
 
-  aiModel        String  @default("gemini-3.5-flash")
+  aiModel        String  @default("gemini-3.8-flash")
   aiTemperature  Float   @default(0.9)
   aiSystemPrompt String? @db.Text
   autoSaveChat   Boolean @default(true)
@@ -318,4 +325,35 @@ model AIMessage {
 
   @@index([chatId, createdAt])
   @@map("ai_messages")
+}
+
+// =========================================================
+// BILLING & SUBSCRIPTION
+// =========================================================
+model Subscription {
+  id       String @id @default(cuid())
+  userId   String
+  plan     String
+  status   String @default("pending")
+  price    Float
+  currency String @default("IDR")
+
+  startedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  cancelledAt DateTime?
+
+  midtransOrderId String?   @unique
+  midtransToken   String?
+  paymentMethod   String?
+  paidAt          DateTime?
+
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([midtransOrderId])
+  @@map("subscriptions")
 }

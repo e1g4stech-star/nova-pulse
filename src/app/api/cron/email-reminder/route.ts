@@ -33,9 +33,9 @@ export async function GET(req: NextRequest) {
 
     const targetHour = req.nextUrl.searchParams.get('hour');
     const now = new Date();
-    const currentHour = targetHour
-      ? String(parseInt(targetHour)).padStart(2, '0') + ':00'
-      : String(now.getHours()).padStart(2, '0') + ':00';
+    const currentHour = targetHour && targetHour !== 'all'
+  ? String(parseInt(targetHour)).padStart(2, '0') + ':00'
+  : String(now.getHours()).padStart(2, '0') + ':00';
 
     // Support ?hour=all → kirim ke SEMUA user yang emailReminder=true
     const sendToAll = targetHour === 'all';
