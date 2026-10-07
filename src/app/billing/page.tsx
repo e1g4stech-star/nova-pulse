@@ -49,7 +49,7 @@ function BillingContent() {
           fetch("/api/auth/me").then((r) => r.json()),
           fetch("/api/billing/status").then((r) => r.json()),
         ]);
-        if (meRes.success) setUser(meRes.user || meRes.data);
+        if (meRes.success) setUser(meRes.data?.user || meRes.user || null);
         if (subsRes.success) setSubs(subsRes.subscriptions || []);
       } catch (err) {
         console.error(err);
