@@ -8,18 +8,22 @@ export function middleware(req: NextRequest) {
   const sessionCookie = req.cookies.get("nova_session");
   const isLoggedIn = !!sessionCookie?.value;
 
-  // Halaman publik
+  // Halaman publik (tidak perlu auth)
   const isPublicPath =
     pathname === "/" ||
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
+    pathname === "/sitemap.xml" ||
+    pathname === "/robots.txt" ||
     pathname.startsWith("/api/auth") ||
     pathname.startsWith("/api/cron") ||
+    pathname.startsWith("/api/billing/webhook") ||
     pathname.startsWith("/r/") ||
     pathname.startsWith("/_next") ||
     pathname.startsWith("/favicon") ||
     pathname === "/sw.js" ||
-    pathname === "/manifest.webmanifest" || pathname === "/manifest.json" ||
+    pathname === "/manifest.webmanifest" ||
+    pathname === "/manifest.json" ||
     pathname.startsWith("/icons/");
 
   // Kalau di /login & sudah login → redirect ke /ai-studio
@@ -37,6 +41,6 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|js|ico|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json|js|ico|webmanifest|xml|txt)$).*)",
   ],
 };
