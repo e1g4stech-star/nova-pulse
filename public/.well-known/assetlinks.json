@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.nova_pulse_eta.twa",
+        "sha256_cert_fingerprints": ["9B:9B:08:9A:64:45:A4:1E:30:0A:55:A1:9D:B3:E5:4E:88:97:EA:25:7A:7A:1A:64:4A:B3:48:C2:A1:32:6A:9D"]
+      }
+    }]

@@ -50,3 +50,9 @@ dev.log
 *.log
 
 *.backup
+
+# Play Store package (large files)
+playstore-package/
+*.aab
+*.apk
+*.keystore
