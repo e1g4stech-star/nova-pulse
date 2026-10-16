@@ -4,38 +4,25 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 
 interface Stats {
-  totalPosts: number;
-  publishedPosts: number;
-  draftPosts: number;
-  scheduledPosts: number;
-  totalIncome: number;
-  totalExpense: number;
-  balance: number;
-  upcomingEvents: number;
-  mediaCount: number;
-}
-
-interface Idea {
-  title: string;
-  platform: string;
-  hook: string;
-  format: string;
-  why: string;
-  bestTime: string;
+  posts: number;
+  drafts: number;
+  scheduled: number;
+  events: number;
+  transactions: number;
+  media: number;
+  affiliateClicks: number;
 }
 
 export default function AIAgentPage() {
-  const [activeTab, setActiveTab] = useState<"analyze" | "generate" | "remind" | "strategy">("analyze");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [analysis, setAnalysis] = useState("");
+  const [analysis, setAnalysis] = useState<string | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
-  const [ideas, setIdeas] = useState<Idea[]>([]);
+  const [ideas, setIdeas] = useState<string[]>([]);
   const [reminders, setReminders] = useState<string[]>([]);
-  const [strategy, setStrategy] = useState("");
-  const [generateCount, setGenerateCount] = useState(5);
+  const [strategy, setStrategy] = useState<string | null>(null);
 
-  async function callAgent(action: string, extra: any = {}) {
+  async function runAgent(action: string, extra: any = {}) {
     setLoading(true);
     setError("");
 
@@ -45,6 +32,51 @@ export default function AIAgentPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, ...extra }),
       });
+
+      // ⭐ HANDLE NON-JSON RESPONSE (504, 503, 500, dll)
+      if (!res.ok) {
+        const errText = await res.text();
+        console.error(
+          `[AI Agent] API error ${res.status}:`,
+          errText.substring(0, 300)
+        );
+
+        if (res.status === 504) {
+          setError(
+            "⏱️ Server timeout — AI sedang overload. Mohon tunggu 2-3 menit lalu coba lagi."
+          );
+          return;
+        }
+        if (res.status === 503) {
+          setError(
+            "🚦 Server AI sedang ramai. Mohon tunggu 1-2 menit lalu coba lagi."
+          );
+          return;
+        }
+        if (res.status === 429) {
+          setError(
+            "⏸️ Terlalu banyak request. Mohon tunggu 1 menit lalu coba lagi."
+          );
+          return;
+        }
+        if (res.status >= 500) {
+          setError(
+            "🚨 Server error. Tim kami sedang memperbaiki. Coba lagi sebentar."
+          );
+          return;
+        }
+        setError(`Error ${res.status}: ${errText.substring(0, 100)}`);
+        return;
+      }
+
+      // ⭐ SAFE JSON PARSE
+      const contentType = res.headers.get("content-type") || "";
+      if (!contentType.includes("application/json")) {
+        const text = await res.text();
+        console.error("Non-JSON response:", text.substring(0, 200));
+        setError("Server mengirim response tidak valid. Coba lagi.");
+        return;
+      }
 
       const json = await res.json();
 
@@ -67,190 +99,176 @@ export default function AIAgentPage() {
         setStrategy(json.data.strategy);
       }
     } catch (err: any) {
-      setError(err.message);
+      console.error("AI Agent error:", err);
+      setError(err.message || "Gagal menjalankan AI Agent. Coba lagi.");
     } finally {
       setLoading(false);
     }
   }
 
-  function formatCurrency(amount: number) {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-    }).format(amount);
-  }
-
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
-        <div className="max-w-5xl mx-auto">
+      <main
+        className="min-h-screen"
+        style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)" }}
+      >
+        <div className="max-w-5xl mx-auto px-6 py-10 space-y-6">
           {/* Header */}
-          <div className="mb-8">
-            <p className="text-cyan-400 text-sm font-bold tracking-widest mb-2">
+          <div>
+            <p
+              className="text-xs font-bold tracking-widest mb-1"
+              style={{ color: "var(--accent-color)" }}
+            >
               AI AGENT
             </p>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center gap-3">
-              <span className="text-cyan-400">🤖</span>
-              Nova Pulse Agent
-            </h1>
-            <p className="text-slate-400">
+            <h1 className="text-4xl font-bold mb-2">Nova Pulse Agent</h1>
+            <p className="text-sm" style={{ color: "var(--theme-text-muted)" }}>
               AI yang baca data kamu & kasih saran cerdas secara otomatis.
             </p>
           </div>
 
-          {/* Tabs */}
-          <div className="flex gap-2 mb-6 overflow-x-auto">
-            {[
-              { id: "analyze", label: "Analyze Data", icon: "📊" },
-              { id: "generate", label: "Generate Ideas", icon: "✨" },
-              { id: "remind", label: "Reminder", icon: "🔔" },
-              { id: "strategy", label: "Strategy", icon: "🎯" },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`px-4 py-2 rounded-lg text-sm font-semibold transition whitespace-nowrap ${
-                  activeTab === tab.id
-                    ? "bg-cyan-500 text-white"
-                    : "bg-slate-800/60 text-slate-300 hover:bg-slate-700"
-                }`}
-              >
-                {tab.icon} {tab.label}
-              </button>
-            ))}
+          {/* Action Buttons */}
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => runAgent("analyze")}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+              style={{
+                background: "var(--accent-color)",
+                color: "var(--theme-bg-primary)",
+              }}
+            >
+              📊 Analyze Data
+            </button>
+            <button
+              onClick={() => runAgent("generate")}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+              style={{
+                background: "var(--theme-bg-tertiary)",
+                color: "var(--theme-text-primary)",
+              }}
+            >
+              ✨ Generate Ideas
+            </button>
+            <button
+              onClick={() => runAgent("remind")}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+              style={{
+                background: "var(--theme-bg-tertiary)",
+                color: "var(--theme-text-primary)",
+              }}
+            >
+              🔔 Reminder
+            </button>
+            <button
+              onClick={() => runAgent("strategy")}
+              disabled={loading}
+              className="px-4 py-2 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+              style={{
+                background: "var(--theme-bg-tertiary)",
+                color: "var(--theme-text-primary)",
+              }}
+            >
+              🎯 Strategy
+            </button>
           </div>
 
+          {/* Error */}
           {error && (
-            <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-xl mb-6">
-              ❌ {error}
+            <div
+              className="text-sm px-4 py-3 rounded-xl flex items-start gap-2"
+              style={{
+                background: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.3)",
+                color: "#fca5a5",
+              }}
+            >
+              <span>❌</span>
+              <span className="flex-1">{error}</span>
+              <button
+                onClick={() => setError("")}
+                className="text-xs opacity-60 hover:opacity-100"
+              >
+                ✕
+              </button>
             </div>
           )}
 
-          {/* ANALYZE TAB */}
-          {activeTab === "analyze" && (
-            <div className="space-y-6">
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h2 className="text-xl font-bold text-white mb-2">
-                  📊 Analyze Data
-                </h2>
-                <p className="text-slate-400 text-sm mb-4">
-                  AI akan baca semua data kamu (posts, transaksi, jadwal, media) dan kasih insight cerdas.
-                </p>
-                <button
-                  onClick={() => callAgent("analyze")}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-                >
-                  {loading ? "⏳ Menganalisa..." : "🚀 Analyze Sekarang"}
-                </button>
+          {/* Loading */}
+          {loading && (
+            <div
+              className="p-6 rounded-xl border text-center"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <div className="inline-block">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce" />
+                  <span
+                    className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce"
+                    style={{ animationDelay: "0.15s" }}
+                  />
+                  <span
+                    className="w-2 h-2 rounded-full bg-cyan-400 animate-bounce"
+                    style={{ animationDelay: "0.3s" }}
+                  />
+                </div>
               </div>
+              <p
+                className="text-sm mt-3"
+                style={{ color: "var(--theme-text-muted)" }}
+              >
+                AI sedang bekerja... Mohon tunggu sebentar.
+              </p>
+            </div>
+          )}
+
+          {/* Analysis Result */}
+          {analysis && !loading && (
+            <div
+              className="p-6 rounded-xl border space-y-4"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <h2 className="text-lg font-bold">📊 Analyze Data</h2>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {analysis}
+              </p>
 
               {stats && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-cyan-500/20">
-                    <p className="text-slate-400 text-xs">Total Posts</p>
-                    <p className="text-2xl font-bold text-cyan-400">{stats.totalPosts}</p>
-                  </div>
-                  <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-green-500/20">
-                    <p className="text-slate-400 text-xs">Saldo</p>
-                    <p className="text-lg font-bold text-green-400">
-                      {formatCurrency(stats.balance)}
-                    </p>
-                  </div>
-                  <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-yellow-500/20">
-                    <p className="text-slate-400 text-xs">Event</p>
-                    <p className="text-2xl font-bold text-yellow-400">{stats.upcomingEvents}</p>
-                  </div>
-                  <div className="bg-slate-800/60 backdrop-blur rounded-xl p-4 border border-purple-500/20">
-                    <p className="text-slate-400 text-xs">Media</p>
-                    <p className="text-2xl font-bold text-purple-400">{stats.mediaCount}</p>
-                  </div>
-                </div>
-              )}
-
-              {analysis && (
-                <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                  <h3 className="text-lg font-bold text-white mb-4">
-                    🧠 AI Analysis
-                  </h3>
-                  <div className="text-slate-200 text-sm whitespace-pre-wrap leading-relaxed">
-                    {analysis}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* GENERATE TAB */}
-          {activeTab === "generate" && (
-            <div className="space-y-6">
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h2 className="text-xl font-bold text-white mb-2">
-                  ✨ Generate Content Ideas
-                </h2>
-                <p className="text-slate-400 text-sm mb-4">
-                  AI akan buat ide konten baru berdasarkan niche & data kamu.
-                </p>
-
-                <div className="flex flex-wrap gap-3 items-center mb-4">
-                  <label className="text-cyan-300 text-sm font-semibold">
-                    Jumlah ide:
-                  </label>
-                  <select
-                    value={generateCount}
-                    onChange={(e) => setGenerateCount(Number(e.target.value))}
-                    className="bg-slate-900 text-white rounded-lg px-3 py-2 border border-slate-700 focus:border-cyan-500 outline-none"
-                  >
-                    <option value={3}>3 ide</option>
-                    <option value={5}>5 ide</option>
-                    <option value={10}>10 ide</option>
-                  </select>
-                </div>
-
-                <button
-                  onClick={() => callAgent("generate", { count: generateCount })}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-                >
-                  {loading ? "⏳ Generating..." : "✨ Generate Ideas"}
-                </button>
-              </div>
-
-              {ideas.length > 0 && (
-                <div className="grid gap-4">
-                  {ideas.map((idea, i) => (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-4 border-t" style={{ borderColor: "var(--theme-border)" }}>
+                  {[
+                    { label: "Posts", value: stats.posts },
+                    { label: "Drafts", value: stats.drafts },
+                    { label: "Scheduled", value: stats.scheduled },
+                    { label: "Events", value: stats.events },
+                    { label: "Transactions", value: stats.transactions },
+                    { label: "Media", value: stats.media },
+                    { label: "Affiliate Clicks", value: stats.affiliateClicks },
+                  ].map((s, i) => (
                     <div
                       key={i}
-                      className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20 hover:border-cyan-500/40 transition"
+                      className="p-3 rounded-lg"
+                      style={{ background: "var(--theme-bg-tertiary)" }}
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <h3 className="text-white font-bold text-lg">
-                          {i + 1}. {idea.title}
-                        </h3>
-                        <span className="text-xs px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 whitespace-nowrap">
-                          {idea.platform}
-                        </span>
+                      <div
+                        className="text-xs"
+                        style={{ color: "var(--theme-text-muted)" }}
+                      >
+                        {s.label}
                       </div>
-
-                      <div className="space-y-2 text-sm">
-                        <p className="text-slate-300">
-                          <span className="text-cyan-400 font-semibold">🎣 Hook:</span>{" "}
-                          {idea.hook}
-                        </p>
-                        <p className="text-slate-300">
-                          <span className="text-cyan-400 font-semibold">📱 Format:</span>{" "}
-                          {idea.format}
-                        </p>
-                        <p className="text-slate-300">
-                          <span className="text-cyan-400 font-semibold">💡 Why:</span>{" "}
-                          {idea.why}
-                        </p>
-                        <p className="text-slate-300">
-                          <span className="text-cyan-400 font-semibold">⏰ Best Time:</span>{" "}
-                          {idea.bestTime}
-                        </p>
+                      <div
+                        className="text-xl font-bold"
+                        style={{ color: "var(--accent-color)" }}
+                      >
+                        {s.value}
                       </div>
                     </div>
                   ))}
@@ -259,72 +277,98 @@ export default function AIAgentPage() {
             </div>
           )}
 
-          {/* REMIND TAB */}
-          {activeTab === "remind" && (
-            <div className="space-y-6">
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h2 className="text-xl font-bold text-white mb-2">
-                  🔔 Reminder Hari Ini
-                </h2>
-                <p className="text-slate-400 text-sm mb-4">
-                  Lihat jadwal & event hari ini.
-                </p>
-                <button
-                  onClick={() => callAgent("remind")}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-                >
-                  {loading ? "⏳ Checking..." : "🔔 Check Reminder"}
-                </button>
-              </div>
-
-              {reminders.length > 0 && (
-                <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                  <div className="space-y-3">
-                    {reminders.map((r, i) => (
-                      <p
-                        key={i}
-                        className="text-slate-200 whitespace-pre-wrap"
-                        dangerouslySetInnerHTML={{
-                          __html: r.replace(/\*\*(.+?)\*\*/g, '<strong class="text-cyan-300">$1</strong>'),
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+          {/* Ideas */}
+          {ideas.length > 0 && !loading && (
+            <div
+              className="p-6 rounded-xl border space-y-3"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <h2 className="text-lg font-bold">✨ Generate Ideas</h2>
+              <ul className="space-y-2">
+                {ideas.map((idea, i) => (
+                  <li
+                    key={i}
+                    className="p-3 rounded-lg text-sm"
+                    style={{ background: "var(--theme-bg-tertiary)" }}
+                  >
+                    {idea}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 
-          {/* STRATEGY TAB */}
-          {activeTab === "strategy" && (
-            <div className="space-y-6">
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h2 className="text-xl font-bold text-white mb-2">
-                  🎯 Content Strategy
-                </h2>
-                <p className="text-slate-400 text-sm mb-4">
-                  AI akan buat strategi konten 7 hari ke depan berdasarkan data kamu.
-                </p>
-                <button
-                  onClick={() => callAgent("strategy")}
-                  disabled={loading}
-                  className="bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-                >
-                  {loading ? "⏳ Menyusun strategi..." : "🎯 Buat Strategi 7 Hari"}
-                </button>
-              </div>
+          {/* Reminders */}
+          {reminders.length > 0 && !loading && (
+            <div
+              className="p-6 rounded-xl border space-y-3"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <h2 className="text-lg font-bold">🔔 Reminder</h2>
+              <ul className="space-y-2">
+                {reminders.map((r, i) => (
+                  <li
+                    key={i}
+                    className="p-3 rounded-lg text-sm"
+                    style={{ background: "var(--theme-bg-tertiary)" }}
+                  >
+                    {r}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-              {strategy && (
-                <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                  <h3 className="text-lg font-bold text-white mb-4">
-                    📋 Strategi Minggu Ini
-                  </h3>
-                  <div className="text-slate-200 text-sm whitespace-pre-wrap leading-relaxed">
-                    {strategy}
-                  </div>
-                </div>
-              )}
+          {/* Strategy */}
+          {strategy && !loading && (
+            <div
+              className="p-6 rounded-xl border space-y-3"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <h2 className="text-lg font-bold">🎯 Strategy</h2>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {strategy}
+              </p>
+            </div>
+          )}
+
+          {/* Empty state — Analyze Card */}
+          {!analysis && !loading && !error && (
+            <div
+              className="p-6 rounded-xl border space-y-4"
+              style={{
+                background: "var(--theme-card-bg)",
+                borderColor: "var(--theme-border)",
+              }}
+            >
+              <h2 className="text-lg font-bold">📊 Analyze Data</h2>
+              <p
+                className="text-sm"
+                style={{ color: "var(--theme-text-muted)" }}
+              >
+                AI akan baca semua data kamu (posts, transaksi, jadwal, media)
+                dan kasih insight cerdas.
+              </p>
+              <button
+                onClick={() => runAgent("analyze")}
+                disabled={loading}
+                className="px-5 py-2.5 rounded-xl font-semibold text-sm transition hover:scale-105 disabled:opacity-50"
+                style={{
+                  background: "linear-gradient(to right, var(--accent-color), #a855f7)",
+                  color: "white",
+                }}
+              >
+                🚀 Analyze Sekarang
+              </button>
             </div>
           )}
         </div>
