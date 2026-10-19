@@ -4,8 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { PLANS, PLAN_LIST, formatPrice, type PlanId } from "@/lib/plans";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 export default function PricingPage() {
+    const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("upgrade") === "required") {
+      setTimeout(() => {
+        alert("🔒 Fitur tersebut khusus untuk pengguna Pro/Business. Silakan pilih paket di bawah ini untuk upgrade.");
+      }, 500);
+    }
+  }, [searchParams]);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   return (

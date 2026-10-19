@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback, useMemo } from "react";
 import Navbar from "@/components/Navbar";
+import PremiumGuard from "@/components/PremiumGuard";
 import {
   PLATFORMS, STAGES, FORMATS, MONTHS, DAYN, DOW,
   ymd, toLocalInput, fmtWhen, fmtNum, num, stageName,
@@ -952,7 +953,7 @@ Balas HANYA JSON array: [{"judul":"...","hook":"maks 12 kata","pilar":"salah sat
     <>
       <div className="mb-5">
         <h1 className="text-3xl font-extrabold tracking-tight">Otomasi dan profil</h1>
-        <p className="text-sm mt-1" style={{ color: "var(--theme-text-muted)" }}>Atur identitas merek, aturan otomatis, dan ekspor jadwal.</p>
+        <p className="text-sm mt-1" style={{ color: "var(--theme-text-muted)" }}>Semua konten dengan jadwal tayang. Titik warna menandai platform.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">

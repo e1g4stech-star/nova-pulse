@@ -54,6 +54,31 @@ export async function PATCH(
     if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const card = await prisma.studioCard.update({ where: { id }, data });
+
+    // SYNC KE KALENDER UTAMA (Hapus event lama, buat baru jika ada jadwal)
+    if (data.schedule !== undefined) {
+      await prisma.calendarEvent.deleteMany({
+        where: {
+          userId: user.id,
+          category: "content",
+          title: `[Konten] ${existing.title}`,
+        },
+      });
+      
+      if (card.schedule) {
+        await prisma.calendarEvent.create({
+          data: {
+            userId: user.id,
+            title: `[Konten] ${card.title}`,
+            description: `Platform: ${card.platforms.join(", ")}. Tahap: ${card.stage}`,
+            startDate: card.schedule,
+            color: "purple",
+            category: "content",
+            platform: card.platforms[0],
+          },
+        });
+      }
+    }
     return NextResponse.json({ success: true, card });
   } catch (err) {
     console.error("[PATCH /api/studio/cards/:id]", err);

@@ -52,6 +52,20 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // SYNC KE KALENDER UTAMA
+    if (card.schedule) {
+      await prisma.calendarEvent.create({
+        data: {
+          userId: user.id,
+          title: `[Konten] ${card.title}`,
+          description: `Platform: ${card.platforms.join(", ")}. Tahap: ${card.stage}`,
+          startDate: card.schedule,
+          color: "purple",
+          category: "content",
+          platform: card.platforms[0],
+        },
+      });
+    }
     return NextResponse.json({ success: true, card });
   } catch (err) {
     console.error("[POST /api/studio/cards]", err);

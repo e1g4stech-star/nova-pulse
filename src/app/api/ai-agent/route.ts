@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 }
 
 // =========================================================
-// ANALYZE — Baca data user & kasih insight
+// ANALYZE â€” Baca data user & kasih insight
 // =========================================================
 async function handleAnalyze(userId: string) {
   const [posts, transactions, events, media] = await Promise.all([
@@ -111,10 +111,10 @@ Platform yang dipakai: ${[...new Set(posts.map((p) => p.platform))].join(", ") |
 ${dataSummary}
 
 Format output:
-## 📊 Insight
+## ðŸ“Š Insight
 1-5 poin analisis
 
-## 🎯 Rekomendasi
+## ðŸŽ¯ Rekomendasi
 3 langkah actionable
 
 Bahasa Indonesia, singkat, to the point.`,
@@ -146,7 +146,7 @@ Bahasa Indonesia, singkat, to the point.`,
 }
 
 // =========================================================
-// GENERATE — Buat N ide konten dari data user
+// GENERATE â€” Buat N ide konten dari data user
 // =========================================================
 async function handleGenerate(userId: string, count: number) {
   const posts = await prisma.post.findMany({
@@ -209,7 +209,7 @@ Bahasa Indonesia. Output JSON valid saja.`;
 }
 
 // =========================================================
-// REMIND — Reminder jadwal hari ini
+// REMIND â€” Reminder jadwal hari ini
 // =========================================================
 async function handleRemind(userId: string) {
   const today = new Date();
@@ -239,23 +239,23 @@ async function handleRemind(userId: string) {
   const reminders: string[] = [];
 
   if (todayEvents.length > 0) {
-    reminders.push(`📅 **${todayEvents.length} event hari ini:**`);
+    reminders.push(`ðŸ“… **${todayEvents.length} event hari ini:**`);
     todayEvents.forEach((e) => {
       const time = new Date(e.startDate).toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
       });
-      reminders.push(`  • ${time} — ${e.title}`);
+      reminders.push(`  â€¢ ${time} â€” ${e.title}`);
     });
   } else {
-    reminders.push("📅 Tidak ada event hari ini");
+    reminders.push("ðŸ“… Tidak ada event hari ini");
   }
 
   if (upcomingScheduled.length > 0) {
     reminders.push("");
-    reminders.push(`📝 **${upcomingScheduled.length} post terjadwal:**`);
+    reminders.push(`ðŸ“ **${upcomingScheduled.length} post terjadwal:**`);
     upcomingScheduled.forEach((p) => {
-      reminders.push(`  • ${p.title} (${p.platform})`);
+      reminders.push(`  â€¢ ${p.title} (${p.platform})`);
     });
   }
 
@@ -270,13 +270,22 @@ async function handleRemind(userId: string) {
 }
 
 // =========================================================
-// STRATEGY — Rekomendasi strategi konten
+// STRATEGY â€” Rekomendasi strategi konten
 // =========================================================
 async function handleStrategy(userId: string) {
   const posts = await prisma.post.findMany({
     where: { userId, status: "published" },
     orderBy: { createdAt: "desc" },
     take: 20,
+  });
+
+  const studioCards = await prisma.studioCard.findMany({
+    where: { userId: user.id },
+    select: { title: true, stage: true, platforms: true, schedule: true }
+  });
+  const studioProfile = await prisma.studioProfile.findUnique({
+    where: { userId: user.id },
+    select: { brand: true, niche: true, pillars: true }
   });
 
   const events = await prisma.calendarEvent.findMany({
@@ -292,18 +301,18 @@ Konteks:
 - Event mendatang: ${events.map((e) => e.title).join(", ") || "belum ada"}
 
 Buat strategi dalam format:
-## 🎯 Tema Minggu Ini
+## ðŸŽ¯ Tema Minggu Ini
 (1 tema utama)
 
-## 📅 Jadwal Konten Harian
+## ðŸ“… Jadwal Konten Harian
 - Senin: [jenis konten + platform + waktu]
 - Selasa: ...
 - dst (7 hari)
 
-## 💡 Tips Engagement
+## ðŸ’¡ Tips Engagement
 3 tips konkret
 
-## 📊 Target Metrics
+## ðŸ“Š Target Metrics
 - Target reach, engagement, followers
 
 Bahasa Indonesia. Singkat & actionable.`;
@@ -320,7 +329,7 @@ Bahasa Indonesia. Singkat & actionable.`;
 }
 
 // =========================================================
-// CHAT — Custom chat dengan konteks data user
+// CHAT â€” Custom chat dengan konteks data user
 // =========================================================
 async function handleChat(userId: string, message: string, history: any[]) {
   // Ambil snapshot data user sebagai konteks
