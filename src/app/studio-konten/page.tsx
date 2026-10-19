@@ -203,13 +203,13 @@ export default function StudioKontenPage() {
   return (
     <>
       <Navbar />
-      <div className="max-w-[1280px] mx-auto px-4 py-6 grid grid-cols-1 md:grid-cols-[200px_1fr] gap-7" style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)", minHeight: "calc(100vh - 64px)" }}>
-        <aside className="hidden md:flex flex-col gap-4 sticky top-20 self-start">
-          <div className="flex items-center gap-2.5 font-bold text-lg">
+      <div className="max-w-[1280px] mx-auto px-4 py-6 flex flex-col md:grid md:grid-cols-[200px_1fr] gap-6" style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)", minHeight: "calc(100vh - 64px)" }}>
+        <aside className="flex md:flex-col gap-2 overflow-x-auto md:sticky md:top-20 md:self-start shrink-0 pb-2 md:pb-0">
+          <div className="hidden md:flex items-center gap-2.5 font-bold text-lg">
             <span className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-white text-sm" style={{ background: "var(--accent-color)" }}>S</span>
             Studio Konten
           </div>
-          <nav className="flex flex-col gap-0.5">
+          <nav className="flex flex-row md:flex-col gap-2 md:gap-0.5">
             {(["home", "create", "board", "calendar", "auto"] as ViewKey[]).map((v) => (
               <button key={v} type="button" onClick={() => setView(v)}
                 className="flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-sm text-left transition"
@@ -223,7 +223,7 @@ export default function StudioKontenPage() {
               </button>
             ))}
           </nav>
-          <p className="text-xs mt-2 pt-3 border-t" style={{ color: "var(--theme-text-muted)", borderColor: "var(--theme-border)" }}>
+          <p className="hidden md:block text-xs mt-2 pt-3 border-t" style={{ color: "var(--theme-text-muted)", borderColor: "var(--theme-border)" }}>
             Data tersimpan di database. Ekspor cadangan dari menu Otomasi.
           </p>
         </aside>
