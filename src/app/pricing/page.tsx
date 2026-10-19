@@ -1,217 +1,160 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import { PLANS, PLAN_LIST, formatPrice, type PlanId } from "@/lib/plans";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
 
-export default function PricingPage() {
-    const searchParams = useSearchParams();
+function PricingContent() {
+  const searchParams = useSearchParams();
+  const [cycle, setCycle] = useState<"monthly" | "yearly">("monthly");
 
   useEffect(() => {
     if (searchParams.get("upgrade") === "required") {
       setTimeout(() => {
-        alert("🔒 Fitur tersebut khusus untuk pengguna Pro/Business. Silakan pilih paket di bawah ini untuk upgrade.");
+        alert("Fitur tersebut khusus untuk pengguna Pro/Business. Silakan pilih paket di bawah ini untuk upgrade.");
       }, 500);
     }
   }, [searchParams]);
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "yearly">("monthly");
 
   return (
     <>
       <Navbar />
-      <main
-        className="min-h-screen"
-        style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)" }}
-      >
-        <div className="max-w-6xl mx-auto px-6 py-16 space-y-12">
+      <main className="min-h-screen py-12 px-4" style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)" }}>
+        <div className="max-w-6xl mx-auto">
+          
           {/* Header */}
-          <div className="text-center space-y-4">
-            <div
-              className="inline-block text-xs font-bold tracking-widest px-3 py-1 rounded-full"
-              style={{ background: "var(--accent-soft)", color: "var(--accent-color)" }}
-            >
-              PRICING
-            </div>
-            <h1 className="text-4xl md:text-5xl font-bold">
-              Pilih Plan Sesuai{" "}
-              <span className="bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                Kebutuhanmu
-              </span>
+          <div className="text-center max-w-2xl mx-auto mb-12">
+            <h1 className="text-4xl font-extrabold tracking-tight mb-4">
+              Pilih Paket Sesuai Kebutuhanmu
             </h1>
-            <p className="text-lg max-w-2xl mx-auto" style={{ color: "var(--theme-text-secondary)" }}>
-              Mulai gratis, upgrade kapan saja. Tidak ada kontrak, bisa cancel kapan pun.
+            <p className="text-lg" style={{ color: "var(--theme-text-muted)" }}>
+              Mulai gratis, upgrade kapan saja. Investasi kecil untuk pertumbuhan konten yang maksimal.
             </p>
           </div>
 
-          {/* Toggle */}
-          <div className="flex items-center justify-center gap-3">
-            <button
-              onClick={() => setBillingCycle("monthly")}
-              className="px-4 py-2 rounded-lg text-sm font-semibold transition"
-              style={{
-                background: billingCycle === "monthly" ? "var(--accent-color)" : "var(--theme-bg-tertiary)",
-                color: billingCycle === "monthly" ? "var(--theme-bg-primary)" : "var(--theme-text-secondary)",
-              }}
-            >
-              Bulanan
-            </button>
-            <div className="relative">
+          {/* Toggle Bulanan / Tahunan */}
+          <div className="flex justify-center mb-10">
+            <div className="inline-flex p-1 rounded-xl border" style={{ background: "var(--theme-bg-secondary)", borderColor: "var(--theme-border)" }}>
               <button
-                onClick={() => setBillingCycle("yearly")}
-                className="px-4 py-2 rounded-lg text-sm font-semibold transition"
+                onClick={() => setCycle("monthly")}
+                className="px-6 py-2 rounded-lg text-sm font-semibold transition"
                 style={{
-                  background: billingCycle === "yearly" ? "var(--accent-color)" : "var(--theme-bg-tertiary)",
-                  color: billingCycle === "yearly" ? "var(--theme-bg-primary)" : "var(--theme-text-secondary)",
+                  background: cycle === "monthly" ? "var(--accent-color)" : "transparent",
+                  color: cycle === "monthly" ? "white" : "var(--theme-text-muted)",
+                }}
+              >
+                Bulanan
+              </button>
+              <button
+                onClick={() => setCycle("yearly")}
+                className="px-6 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2"
+                style={{
+                  background: cycle === "yearly" ? "var(--accent-color)" : "transparent",
+                  color: cycle === "yearly" ? "white" : "var(--theme-text-muted)",
                 }}
               >
                 Tahunan
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/20">Hemat 20%</span>
               </button>
-              <span
-                className="absolute -bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap"
-                style={{ background: "#22c55e", color: "white" }}
-              >
-                HEMAT 2 BULAN
-              </span>
             </div>
           </div>
 
-          {/* Pricing Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+          {/* Grid Kartu Harga */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             {PLAN_LIST.map((plan) => {
-              const isHighlight = plan.highlight;
-              const price = billingCycle === "monthly" ? plan.price : Math.round(plan.priceYearly / 12);
-              const totalPrice = billingCycle === "monthly" ? plan.price : plan.priceYearly;
+              const isFree = plan.id === "free";
+              const isPro = plan.id === "pro";
+              const price = cycle === "monthly" ? plan.price : plan.priceYearly;
 
               return (
                 <div
                   key={plan.id}
-                  className={`rounded-2xl border p-6 relative transition-all hover:scale-[1.02] ${
-                    isHighlight ? "md:-mt-4 md:mb-4" : ""
-                  }`}
+                  className={`relative rounded-2xl border p-6 flex flex-col ${isPro ? "shadow-xl scale-105 z-10" : ""}`}
                   style={{
-                    background: isHighlight ? "var(--accent-soft)" : "var(--theme-card-bg)",
-                    borderColor: isHighlight ? "var(--accent-color)" : "var(--theme-border)",
-                    borderWidth: isHighlight ? "2px" : "1px",
+                    background: "var(--theme-bg-secondary)",
+                    borderColor: isPro ? "var(--accent-color)" : "var(--theme-border)",
                   }}
                 >
-                  {plan.badge && (
-                    <div
-                      className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] font-bold tracking-widest px-3 py-1 rounded-full"
-                      style={{ background: "linear-gradient(to right, var(--accent-color), #a855f7)", color: "white" }}
-                    >
-                      {plan.badge}
+                  {isPro && (
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md" style={{ background: "var(--accent-color)" }}>
+                      Paling Populer
                     </div>
                   )}
 
-                  <h3 className="text-xl font-bold mb-1">{plan.name}</h3>
-                  <p className="text-xs mb-6" style={{ color: "var(--theme-text-muted)" }}>
-                    {plan.description}
-                  </p>
+                  <div className="mb-6">
+                    <h2 className="text-xl font-bold mb-2">{plan.name}</h2>
+                    <p className="text-sm h-10" style={{ color: "var(--theme-text-muted)" }}>
+                      {plan.description}
+                    </p>
+                  </div>
 
                   <div className="mb-6">
                     <div className="flex items-baseline gap-1">
-                      <span
-                        className="text-3xl font-bold"
-                        style={{ color: isHighlight ? "var(--accent-color)" : "var(--theme-text-primary)" }}
-                      >
+                      <span className="text-3xl font-extrabold">
                         {formatPrice(price)}
                       </span>
-                      {plan.price > 0 && (
-                        <span className="text-sm" style={{ color: "var(--theme-text-muted)" }}>
-                          /bulan
+                      {!isFree && (
+                        <span className="text-sm font-medium" style={{ color: "var(--theme-text-muted)" }}>
+                          /{cycle === "monthly" ? "bln" : "thn"}
                         </span>
                       )}
                     </div>
-                    {billingCycle === "yearly" && plan.price > 0 && (
-                      <div className="text-xs mt-1" style={{ color: "var(--theme-text-muted)" }}>
-                        Dibayar {formatPrice(totalPrice)} / tahun
-                      </div>
-                    )}
                   </div>
 
-                  {plan.id === "free" ? (
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((feat, idx) => (
+                      <li key={idx} className="flex items-start gap-2 text-sm">
+                        <span style={{ color: "var(--accent-color)" }}>✓</span>
+                        <span style={{ color: feat.includes("Tidak termasuk") ? "var(--theme-text-muted)" : "var(--theme-text-primary)" }}>
+                          {feat}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  {isFree ? (
                     <Link
                       href="/dashboard"
-                      className="block w-full text-center py-3 rounded-xl font-semibold text-sm transition mb-6"
-                      style={{ background: "var(--theme-bg-tertiary)", color: "var(--theme-text-primary)" }}
+                      className="w-full py-3 rounded-xl border font-bold text-center transition hover:bg-black/5"
+                      style={{ borderColor: "var(--theme-border)" }}
                     >
                       Mulai Gratis
                     </Link>
                   ) : (
                     <Link
-                      href={`/billing?plan=${plan.id}&cycle=${billingCycle}`}
-                      className="block w-full text-center py-3 rounded-xl font-bold text-sm transition mb-6 hover:scale-[1.02]"
+                      href={`/billing?plan=${plan.id}&cycle=${cycle}`}
+                      className="w-full py-3 rounded-xl font-bold text-center text-white transition hover:opacity-90"
                       style={{
-                        background: isHighlight
+                        background: isPro
                           ? "linear-gradient(to right, var(--accent-color), #a855f7)"
-                          : "var(--theme-bg-tertiary)",
-                        color: isHighlight ? "white" : "var(--theme-text-primary)",
+                          : "var(--theme-text-primary)",
                       }}
                     >
-                      Upgrade ke {plan.name}
+                      Pilih {plan.name}
                     </Link>
                   )}
-
-                  <ul className="space-y-2.5">
-                    {plan.features.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm">
-                        <span
-                          className="shrink-0 mt-0.5 w-4 h-4 rounded-full flex items-center justify-center text-[10px]"
-                          style={{ background: "var(--accent-soft)", color: "var(--accent-color)" }}
-                        >
-                          ✓
-                        </span>
-                        <span style={{ color: "var(--theme-text-secondary)" }}>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
                 </div>
               );
             })}
           </div>
 
-          {/* FAQ */}
-          <div className="pt-12 space-y-6">
-            <h2 className="text-2xl font-bold text-center">Pertanyaan Umum</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
-              {[
-                { q: "Bisa cancel kapan saja?", a: "Ya, kamu bisa cancel kapan saja. Akses tetap aktif sampai akhir periode." },
-                { q: "Metode pembayaran apa?", a: "QRIS, transfer bank, GoPay, OVO, Dana, ShopeePay via Midtrans." },
-                { q: "Ada free trial Pro?", a: "Free tier sudah cukup untuk coba semua fitur dasar. Upgrade kapan saja." },
-                { q: "Diskon tahunan berapa?", a: "Bayar tahunan hemat 2 bulan (setara 17% diskon)." },
-              ].map((faq, i) => (
-                <div
-                  key={i}
-                  className="rounded-xl border p-4"
-                  style={{ background: "var(--theme-card-bg)", borderColor: "var(--theme-border)" }}
-                >
-                  <div className="font-semibold mb-1">{faq.q}</div>
-                  <div className="text-sm" style={{ color: "var(--theme-text-muted)" }}>
-                    {faq.a}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Bottom CTA */}
-          <div className="text-center pt-8">
-            <p className="text-sm mb-4" style={{ color: "var(--theme-text-muted)" }}>
-              Masih ragu? Coba Free dulu — upgrade kapan saja.
-            </p>
-            <Link
-              href="/dashboard"
-              className="inline-block px-8 py-3 rounded-xl font-bold text-sm transition hover:scale-105"
-              style={{ background: "linear-gradient(to right, var(--accent-color), #a855f7)", color: "white" }}
-            >
-              Mulai Gratis Sekarang
-            </Link>
+          {/* FAQ atau Footer Note */}
+          <div className="mt-16 text-center text-sm" style={{ color: "var(--theme-text-muted)" }}>
+            <p>Semua paket termasuk pembaruan gratis dan dukungan komunitas.</p>
+            <p className="mt-2">Punya pertanyaan? <Link href="/dashboard" className="underline font-semibold" style={{ color: "var(--accent-color)" }}>Hubungi kami</Link></p>
           </div>
         </div>
       </main>
     </>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Memuat...</div>}>
+      <PricingContent />
+    </Suspense>
   );
 }
