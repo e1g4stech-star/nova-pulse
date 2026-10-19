@@ -56,3 +56,7 @@ playstore-package/
 *.aab
 *.apk
 *.keystore
+
+.env
+.env.local
+.env.production

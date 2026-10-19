@@ -10,7 +10,9 @@ import {
 export const runtime = "nodejs";
 export const maxDuration = 60;
 
-// GET - Ambil chat + semua messages
+// =========================================================
+// GET — Ambil chat + semua messages
+// =========================================================
 export async function GET(req: NextRequest, context: any) {
   try {
     const user = await getCurrentUser();
@@ -39,7 +41,9 @@ export async function GET(req: NextRequest, context: any) {
   }
 }
 
-// POST - Kirim message baru & dapat response AI
+// =========================================================
+// POST — Kirim message & dapat response AI (atomic transaction)
+// =========================================================
 export async function POST(req: NextRequest, context: any) {
   try {
     const user = await getCurrentUser();
@@ -61,7 +65,7 @@ export async function POST(req: NextRequest, context: any) {
       include: {
         messages: {
           orderBy: { createdAt: "asc" },
-          take: 20, // Ambil 20 message terakhir untuk context
+          take: 20,
         },
       },
     });
@@ -70,46 +74,61 @@ export async function POST(req: NextRequest, context: any) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
-    // Simpan user message
-    await prisma.aIMessage.create({
-      data: {
-        chatId: id,
-        role: "user",
-        content: message,
-      },
-    });
-
-    // Build conversation history
+    // Build conversation history (JANGAN simpan user message dulu)
     const history: ChatMessage[] = chat.messages.map((m) => ({
       role: m.role as "user" | "model" | "system",
       content: m.content,
     }));
     history.push({ role: "user", content: message });
 
-    // Generate AI response
-    const aiResponse = await generateChatResponse(
-      history,
-      NOVA_PULSE_SYSTEM_PROMPT
-    );
+    // ⭐ GENERATE AI RESPONSE DULU — sebelum simpan ke DB
+    let aiResponse: string;
+    try {
+      aiResponse = await generateChatResponse(history, NOVA_PULSE_SYSTEM_PROMPT);
+    } catch (aiError: any) {
+      console.error("[AI Chat] Generation failed:", aiError);
 
-    // Simpan AI response
-    const aiMessage = await prisma.aIMessage.create({
-      data: {
-        chatId: id,
-        role: "model",
-        content: aiResponse,
-      },
-    });
+      // Return 503 untuk timeout/overload — JANGAN simpan user message
+      const errMsg = aiError?.message || "AI tidak dapat merespons";
+      const isTimeout =
+        errMsg.includes("503") ||
+        errMsg.includes("504") ||
+        errMsg.includes("timeout") ||
+        errMsg.includes("overload") ||
+        errMsg.includes("ramai") ||
+        errMsg.includes("Server AI");
 
-    // Auto-update chat title kalau masih "Chat Baru"
+      return NextResponse.json(
+        {
+          error: errMsg,
+          isTimeout,
+          hint: isTimeout
+            ? "Google AI sedang ramai. Coba lagi 1-2 menit."
+            : "Terjadi kesalahan. Coba lagi.",
+        },
+        { status: isTimeout ? 503 : 500 }
+      );
+    }
+
+    // ⭐ SIMPAN user + AI message sebagai TRANSACTION — atomic
+    const [userMessage, aiMessage] = await prisma.$transaction([
+      prisma.aIMessage.create({
+        data: { chatId: id, role: "user", content: message },
+      }),
+      prisma.aIMessage.create({
+        data: { chatId: id, role: "model", content: aiResponse },
+      }),
+    ]);
+
+    // Update chat title / updatedAt
     if (chat.title === "Chat Baru" && chat.messages.length === 0) {
-      const newTitle = message.slice(0, 50) + (message.length > 50 ? "..." : "");
+      const newTitle =
+        message.slice(0, 50) + (message.length > 50 ? "..." : "");
       await prisma.aIChat.update({
         where: { id },
-        data: { title: newTitle },
+        data: { title: newTitle, updatedAt: new Date() },
       });
     } else {
-      // Touch updatedAt
       await prisma.aIChat.update({
         where: { id },
         data: { updatedAt: new Date() },
@@ -119,22 +138,32 @@ export async function POST(req: NextRequest, context: any) {
     return NextResponse.json({
       success: true,
       data: {
-        userMessage: { role: "user", content: message },
+        userMessage: {
+          id: userMessage.id,
+          role: "user",
+          content: userMessage.content,
+          createdAt: userMessage.createdAt,
+        },
         aiMessage: {
           id: aiMessage.id,
           role: "model",
-          content: aiResponse,
+          content: aiMessage.content,
           createdAt: aiMessage.createdAt,
         },
       },
     });
   } catch (error: any) {
-    console.error("Chat error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("[AI Chat POST] Error:", error);
+    return NextResponse.json(
+      { error: error.message || "Internal error" },
+      { status: 500 }
+    );
   }
 }
 
-// DELETE - Hapus chat
+// =========================================================
+// DELETE — Hapus chat
+// =========================================================
 export async function DELETE(req: NextRequest, context: any) {
   try {
     const user = await getCurrentUser();
@@ -157,7 +186,9 @@ export async function DELETE(req: NextRequest, context: any) {
   }
 }
 
-// PATCH - Update chat (pin/unpin, rename)
+// =========================================================
+// PATCH — Update chat (pin/unpin, rename)
+// =========================================================
 export async function PATCH(req: NextRequest, context: any) {
   try {
     const user = await getCurrentUser();
@@ -173,9 +204,14 @@ export async function PATCH(req: NextRequest, context: any) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
 
+    // Whitelist field yang boleh di-update
+    const data: any = {};
+    if (typeof body.isPinned === "boolean") data.isPinned = body.isPinned;
+    if (typeof body.title === "string") data.title = body.title;
+
     const updated = await prisma.aIChat.update({
       where: { id },
-      data: body,
+      data,
     });
 
     return NextResponse.json({ success: true, data: updated });

@@ -61,6 +61,7 @@ export default function Navbar() {
   { href: "/affiliate", label: "Affiliate" },
   { href: "/pricing", label: "Pricing" },
   { href: "/billing", label: "Billing" },
+  { href: "/studio-konten", label: "Studio Konten" },
 ];
 
   function isActive(href: string) {

@@ -35,6 +35,8 @@ model User {
   aiChats        AIChat[]
   settings       UserSettings?
   subscriptions  Subscription[]
+  studioProfile  StudioProfile?
+  studioCards    StudioCard[]
 
   @@map("users")
 }
@@ -329,6 +331,9 @@ model AIMessage {
 
 // =========================================================
 // BILLING & SUBSCRIPTION
+
+// =========================================================
+// BILLING & SUBSCRIPTION
 // =========================================================
 model Subscription {
   id       String @id @default(cuid())
@@ -356,4 +361,56 @@ model Subscription {
   @@index([userId, status])
   @@index([midtransOrderId])
   @@map("subscriptions")
+}
+
+// =========================================================
+// STUDIO KONTEN AI
+// =========================================================
+model StudioProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand       String   @default("")
+  niche       String   @default("")
+  audience    String   @default("")
+  voice       String   @default("")
+  pillars     String   @default("")
+  hashtags    String   @default("")
+  cta         String   @default("")
+  platforms   String[] @default(["tiktok", "instagram"])
+  times       Json     @default("{\"tiktok\":\"19:00\",\"instagram\":\"12:00\",\"facebook\":\"09:00\",\"youtube\":\"17:00\"}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("studio_profiles")
+}
+
+model StudioCard {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String   @default("")
+  stage       String   @default("ide")
+  platforms   String[] @default(["tiktok", "instagram"])
+  format      String   @default("short")
+  pillar      String   @default("")
+  hook        String   @default("")
+  script      Json     @default("[]")
+  captions    Json     @default("{}")
+  tags        Json     @default("{}")
+  ytTitle     String   @default("")
+  ytDesc      String   @default("")
+  cta         String   @default("")
+  schedule    DateTime?
+  checklist   Json     @default("[]")
+  perf        Json     @default("{\"views\":\"\",\"likes\":\"\",\"comments\":\"\",\"shares\":\"\"}")
+  prompts     Json     @default("{}")
+  pOpt        Json     @default("{\"lang\":\"en\",\"style\":\"Sinematik realistis\",\"voice\":\"Hangat dan santai\"}")
+  example     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, stage])
+  @@index([userId, schedule])
+  @@map("studio_cards")
 }
