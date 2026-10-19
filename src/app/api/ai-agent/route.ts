@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 }
 
 // =========================================================
-// ANALYZE â€” Baca data user & kasih insight
+// ANALYZE Ã¢â‚¬â€ Baca data user & kasih insight
 // =========================================================
 async function handleAnalyze(userId: string) {
   const [posts, transactions, events, media] = await Promise.all([
@@ -111,10 +111,10 @@ Platform yang dipakai: ${[...new Set(posts.map((p) => p.platform))].join(", ") |
 ${dataSummary}
 
 Format output:
-## ðŸ“Š Insight
+## Ã°Å¸â€œÅ  Insight
 1-5 poin analisis
 
-## ðŸŽ¯ Rekomendasi
+## Ã°Å¸Å½Â¯ Rekomendasi
 3 langkah actionable
 
 Bahasa Indonesia, singkat, to the point.`,
@@ -146,7 +146,7 @@ Bahasa Indonesia, singkat, to the point.`,
 }
 
 // =========================================================
-// GENERATE â€” Buat N ide konten dari data user
+// GENERATE Ã¢â‚¬â€ Buat N ide konten dari data user
 // =========================================================
 async function handleGenerate(userId: string, count: number) {
   const posts = await prisma.post.findMany({
@@ -209,7 +209,7 @@ Bahasa Indonesia. Output JSON valid saja.`;
 }
 
 // =========================================================
-// REMIND â€” Reminder jadwal hari ini
+// REMIND Ã¢â‚¬â€ Reminder jadwal hari ini
 // =========================================================
 async function handleRemind(userId: string) {
   const today = new Date();
@@ -239,23 +239,23 @@ async function handleRemind(userId: string) {
   const reminders: string[] = [];
 
   if (todayEvents.length > 0) {
-    reminders.push(`ðŸ“… **${todayEvents.length} event hari ini:**`);
+    reminders.push(`Ã°Å¸â€œâ€¦ **${todayEvents.length} event hari ini:**`);
     todayEvents.forEach((e) => {
       const time = new Date(e.startDate).toLocaleTimeString("id-ID", {
         hour: "2-digit",
         minute: "2-digit",
       });
-      reminders.push(`  â€¢ ${time} â€” ${e.title}`);
+      reminders.push(`  Ã¢â‚¬Â¢ ${time} Ã¢â‚¬â€ ${e.title}`);
     });
   } else {
-    reminders.push("ðŸ“… Tidak ada event hari ini");
+    reminders.push("Ã°Å¸â€œâ€¦ Tidak ada event hari ini");
   }
 
   if (upcomingScheduled.length > 0) {
     reminders.push("");
-    reminders.push(`ðŸ“ **${upcomingScheduled.length} post terjadwal:**`);
+    reminders.push(`Ã°Å¸â€œÂ **${upcomingScheduled.length} post terjadwal:**`);
     upcomingScheduled.forEach((p) => {
-      reminders.push(`  â€¢ ${p.title} (${p.platform})`);
+      reminders.push(`  Ã¢â‚¬Â¢ ${p.title} (${p.platform})`);
     });
   }
 
@@ -270,7 +270,7 @@ async function handleRemind(userId: string) {
 }
 
 // =========================================================
-// STRATEGY â€” Rekomendasi strategi konten
+// STRATEGY Ã¢â‚¬â€ Rekomendasi strategi konten
 // =========================================================
 async function handleStrategy(userId: string) {
   const posts = await prisma.post.findMany({
@@ -301,18 +301,18 @@ Konteks:
 - Event mendatang: ${events.map((e) => e.title).join(", ") || "belum ada"}
 
 Buat strategi dalam format:
-## ðŸŽ¯ Tema Minggu Ini
+## Ã°Å¸Å½Â¯ Tema Minggu Ini
 (1 tema utama)
 
-## ðŸ“… Jadwal Konten Harian
+## Ã°Å¸â€œâ€¦ Jadwal Konten Harian
 - Senin: [jenis konten + platform + waktu]
 - Selasa: ...
 - dst (7 hari)
 
-## ðŸ’¡ Tips Engagement
+## Ã°Å¸â€™Â¡ Tips Engagement
 3 tips konkret
 
-## ðŸ“Š Target Metrics
+## Ã°Å¸â€œÅ  Target Metrics
 - Target reach, engagement, followers
 
 Bahasa Indonesia. Singkat & actionable.`;
@@ -329,7 +329,7 @@ Bahasa Indonesia. Singkat & actionable.`;
 }
 
 // =========================================================
-// CHAT â€” Custom chat dengan konteks data user
+// CHAT Ã¢â‚¬â€ Custom chat dengan konteks data user
 // =========================================================
 async function handleChat(userId: string, message: string, history: any[]) {
   // Ambil snapshot data user sebagai konteks

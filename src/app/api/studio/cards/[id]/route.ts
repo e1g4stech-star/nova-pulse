@@ -35,6 +35,10 @@ export async function PATCH(
 
     const { id } = await params;
     const body = await req.json();
+    
+    // --- FIX: Pastikan user dideklarasikan ---
+    const user = await getCurrentUser();
+    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const allowed = [
       "title", "stage", "platforms", "format", "pillar", "hook",
