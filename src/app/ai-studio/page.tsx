@@ -3,301 +3,127 @@
 import { useState } from "react";
 import Navbar from "@/components/Navbar";
 
-interface AIResult {
-  hooks: string[];
-  captions: string[];
-  hashtags: string[];
-  visualSuggestions: string[];
-  readinessScore: number;
-  bestPostingTime: string;
-}
+const VISUAL_ENGINES = [
+  { id: "kling", name: "Kling AI", url: "https://klingai.com", desc: "Video sinematik + gambar detail", icon: "🎬" },
+  { id: "runway", name: "Runway", url: "https://runwayml.com", desc: "Video profesional 1080p", icon: "🎥" },
+  { id: "grok", name: "Grok AI", url: "https://grok.com", desc: "Gambar kreatif & realistis (X.AI)", icon: "⚡" },
+  { id: "google", name: "Google Veo", url: "https://labs.google/veo", desc: "Video AI dari Google Labs", icon: "🔷" },
+  { id: "leonardo", name: "Leonardo AI", url: "https://leonardo.ai", desc: "Gambar artistik & game asset", icon: "🎨" },
+  { id: "ideogram", name: "Ideogram", url: "https://ideogram.ai", desc: "Gambar dengan teks di dalamnya", icon: "✍️" },
+];
 
 export default function AIStudioPage() {
-  const [idea, setIdea] = useState("");
+  const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AIResult | null>(null);
-  const [error, setError] = useState("");
+  const [showEngines, setShowEngines] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const [imageLoading, setImageLoading] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-  const [imageError, setImageError] = useState("");
-
-  const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState("");
-
-  async function handleGenerate() {
-    if (!idea.trim()) {
-      setError("Tulis dulu ide kontenmu!");
-      return;
-    }
-
+  async function generateText() {
+    if (!prompt.trim()) return;
     setLoading(true);
-    setError("");
-    setResult(null);
-    setSaveMessage("");
-
-    try {
-      const res = await fetch("/api/ai/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idea }),
-      });
-
-      const json = await res.json();
-
-      if (json.success) {
-        setResult(json.data);
-      } else {
-        setError(json.error || "Gagal generate");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      setError(msg);
-    } finally {
+    // (Simulasi AI Text, implementasi asli ada di API /api/ai/generate)
+    setTimeout(() => {
+      alert("Generate Teks AI: Fitur ini akan memanggil API /api/ai/generate (Gemini/Groq).");
       setLoading(false);
-    }
+    }, 1000);
   }
 
-  async function handleGenerateImage() {
-    if (!idea.trim()) {
-      setImageError("Tulis dulu ide kontenmu!");
-      return;
+  function handleOpenEngine(engine: { name: string; url: string }) {
+    // 1. Copy prompt ke clipboard
+    if (prompt.trim()) {
+      navigator.clipboard.writeText(prompt);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 3000);
     }
 
-    setImageLoading(true);
-    setImageError("");
-    setImageUrl("");
-
-    try {
-      const prompt = `Buat gambar profesional untuk konten media sosial dengan ide: "${idea}". Style: modern, aesthetic, high quality, Instagram/TikTok ready, 1:1 aspect ratio.`;
-
-      const res = await fetch("/api/ai/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt }),
-      });
-
-      const json = await res.json();
-
-      if (json.success && json.data.image) {
-        setImageUrl(json.data.image);
-      } else {
-        setImageError(json.error || "Gagal generate gambar");
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      setImageError(msg);
-    } finally {
-      setImageLoading(false);
-    }
-  }
-
-  async function handleSaveToDraft() {
-    if (!result) return;
-
-    setSaving(true);
-    setSaveMessage("");
-
-    try {
-      const res = await fetch("/api/posts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          platform: "instagram",
-          title: result.hooks[0] || idea,
-          desc: result.captions[0] || "",
-          status: "draft",
-          hashtags: result.hashtags || [],
-        }),
-      });
-
-      const json = await res.json();
-
-      if (json.success) {
-        setSaveMessage("Tersimpan di database! Cek di /posts");
-        setTimeout(() => setSaveMessage(""), 5000);
-      } else {
-        setSaveMessage(`Gagal: ${json.error}`);
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "Terjadi kesalahan";
-      setSaveMessage(`Error: ${msg}`);
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  function downloadImage() {
-    if (!imageUrl) return;
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = `nova-pulse-${Date.now()}.png`;
-    link.click();
+    // 2. Buka website AI di tab baru
+    window.open(engine.url, "_blank");
+    setShowEngines(false);
   }
 
   return (
     <>
       <Navbar />
-      <main className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+      <main className="min-h-screen py-10 px-4" style={{ background: "var(--theme-bg-primary)", color: "var(--theme-text-primary)" }}>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-cyan-400 mb-2">
-            AI Virality Studio
-          </h1>
-          <p className="text-slate-400 mb-8">
-            Ketik ide kontenmu, biar AI bantu bikin hook, caption, hashtag, dan visual.
-          </p>
-
-          <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 mb-6 border border-cyan-500/20">
-            <label className="block text-cyan-300 mb-3 font-semibold">
-              Apa yang ingin kamu posting?
-            </label>
-            <textarea
-              value={idea}
-              onChange={(e) => setIdea(e.target.value)}
-              placeholder="Contoh: Launch produk skincare futuristik untuk Gen Z..."
-              rows={4}
-              className="w-full bg-slate-900/80 text-white rounded-xl p-4 border border-slate-700 focus:border-cyan-500 outline-none resize-none"
-            />
-            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-3">
-              <button
-                onClick={handleGenerate}
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-              >
-                {loading ? "Generating..." : "Generate Teks AI"}
-              </button>
-              <button
-                onClick={handleGenerateImage}
-                disabled={imageLoading}
-                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 text-white font-bold py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition"
-              >
-                {imageLoading ? "Creating Image..." : "Generate Visual AI"}
-              </button>
-            </div>
+          
+          <div className="mb-8">
+            <h1 className="text-3xl font-extrabold tracking-tight">AI Virality Studio</h1>
+            <p className="text-sm mt-1" style={{ color: "var(--theme-text-muted)" }}>
+              Ketik ide kontenmu, biarkan AI bantu bikin hook, caption, hashtag, dan visual.
+            </p>
           </div>
 
-          {error && (
-            <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-xl mb-6">
-              {error}
-            </div>
-          )}
+          <div className="rounded-2xl border p-6 mb-6" style={{ background: "var(--theme-bg-secondary)", borderColor: "var(--theme-border)" }}>
+            <label className="block mb-4">
+              <span className="text-sm font-semibold" style={{ color: "var(--theme-text-muted)" }}>Apa yang ingin kamu posting?</span>
+              <textarea
+                rows={4}
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Contoh: Launch produk skincare futuristik untuk Gen Z, dengan nuansa neon di kota malam..."
+                className="w-full mt-2 px-4 py-3 rounded-xl border text-sm"
+                style={{ background: "var(--theme-bg-primary)", borderColor: "var(--theme-border)", color: "var(--theme-text-primary)" }}
+              />
+            </label>
 
-          {imageError && (
-            <div className="bg-red-500/20 border border-red-500 text-red-300 p-4 rounded-xl mb-6">
-              {imageError}
-            </div>
-          )}
+            <div className="flex flex-col md:flex-row gap-3">
+              <button
+                onClick={generateText}
+                disabled={loading || !prompt.trim()}
+                className="flex-1 py-3 rounded-xl text-sm font-bold text-white disabled:opacity-50 transition"
+                style={{ background: "linear-gradient(to right, #06b6d4, #3b82f6)" }}
+              >
+                {loading ? "Menyusun Teks..." : "Generate Teks AI"}
+              </button>
 
-          {saveMessage && (
-            <div className="bg-green-500/20 border border-green-500 text-green-300 p-4 rounded-xl mb-6">
-              {saveMessage}
+              <button
+                onClick={() => {
+                  if (!prompt.trim()) { alert("Isi ide konten dulu di kolom atas."); return; }
+                  setShowEngines(true);
+                }}
+                className="flex-1 py-3 rounded-xl text-sm font-bold text-white transition"
+                style={{ background: "linear-gradient(to right, #ec4899, #a855f7)" }}
+              >
+                Generate Visual AI
+              </button>
             </div>
-          )}
+            {copied && <p className="text-xs mt-3 text-green-400">✅ Prompt berhasil disalin! Tinggal paste (Ctrl+V) di website AI yang terbuka.</p>}
+          </div>
 
-          {imageUrl && (
-            <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 mb-6 border border-pink-500/20">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-pink-400 font-bold">Generated Visual</h3>
-                <button
-                  onClick={downloadImage}
-                  className="bg-pink-500/20 text-pink-300 px-4 py-2 rounded-lg text-sm hover:bg-pink-500/30 transition"
-                >
-                  Download PNG
-                </button>
-              </div>
-              <div className="flex justify-center">
-                <img
-                  src={imageUrl}
-                  alt="AI Generated Visual"
-                  className="rounded-xl max-w-full max-h-96 object-contain shadow-2xl"
-                />
-              </div>
-            </div>
-          )}
-
-          {result && (
-            <div className="space-y-6">
-              <div className="bg-gradient-to-r from-green-500/20 to-cyan-500/20 backdrop-blur rounded-2xl p-4 border border-green-500/30 flex justify-between items-center">
-                <div>
-                  <p className="text-green-300 font-bold">Konten siap disimpan</p>
-                  <p className="text-slate-400 text-sm">Simpan sebagai draft untuk dikelola nanti</p>
+          {/* MODAL PILIHAN ENGINE VISUAL */}
+          {showEngines && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)" }}>
+              <div className="w-full max-w-lg rounded-2xl border p-5 max-h-[80vh] overflow-y-auto" style={{ background: "var(--theme-bg-primary)", borderColor: "var(--theme-border)" }}>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold">Pilih Mesin Visual AI</h2>
+                  <button onClick={() => setShowEngines(false)} className="text-xl font-bold px-2">×</button>
                 </div>
-                <button
-                  onClick={handleSaveToDraft}
-                  disabled={saving}
-                  className="bg-gradient-to-r from-green-500 to-cyan-500 text-white font-bold px-6 py-3 rounded-xl hover:opacity-90 disabled:opacity-50 transition whitespace-nowrap"
-                >
-                  {saving ? "Menyimpan..." : "Simpan ke Draft"}
-                </button>
-              </div>
-
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-300">Virality Readiness</span>
-                  <span className="text-4xl font-bold text-cyan-400">
-                    {result.readinessScore}
-                    <span className="text-xl text-slate-500">/100</span>
-                  </span>
-                </div>
-                <div className="mt-3 h-2 bg-slate-700 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 transition-all"
-                    style={{ width: `${result.readinessScore}%` }}
-                  />
-                </div>
-                <p className="text-slate-400 text-sm mt-3">
-                  Waktu terbaik posting: <strong className="text-cyan-300">{result.bestPostingTime}</strong>
+                <p className="text-xs mb-4" style={{ color: "var(--theme-text-muted)" }}>
+                  Nova Pulse akan menyalin promptmu otomatis. Kamu tinggal paste (Ctrl+V) di website AI yang terbuka.
                 </p>
-              </div>
 
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h3 className="text-cyan-400 font-bold mb-3">Hooks (3 Detik Pertama)</h3>
-                <ul className="space-y-2">
-                  {result.hooks.map((h, i) => (
-                    <li key={i} className="text-slate-200 bg-slate-900/50 p-3 rounded-lg">
-                      {i + 1}. {h}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h3 className="text-cyan-400 font-bold mb-3">Captions</h3>
-                <div className="space-y-3">
-                  {result.captions.map((c, i) => (
-                    <div key={i} className="text-slate-200 bg-slate-900/50 p-4 rounded-lg">
-                      {c}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h3 className="text-cyan-400 font-bold mb-3">Hashtags</h3>
-                <div className="flex flex-wrap gap-2">
-                  {result.hashtags.map((h, i) => (
-                    <span
-                      key={i}
-                      className="bg-cyan-500/20 text-cyan-300 px-3 py-1 rounded-full text-sm"
+                <div className="space-y-2">
+                  {VISUAL_ENGINES.map((engine) => (
+                    <button
+                      key={engine.id}
+                      onClick={() => handleOpenEngine(engine)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border text-left transition hover:opacity-80"
+                      style={{ background: "var(--theme-bg-secondary)", borderColor: "var(--theme-border)" }}
                     >
-                      {h}
-                    </span>
+                      <span className="text-2xl">{engine.icon}</span>
+                      <div className="flex-1">
+                        <div className="font-bold text-sm">{engine.name}</div>
+                        <div className="text-xs" style={{ color: "var(--theme-text-muted)" }}>{engine.desc}</div>
+                      </div>
+                      <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300">Buka ↗</span>
+                    </button>
                   ))}
                 </div>
-              </div>
-
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-cyan-500/20">
-                <h3 className="text-cyan-400 font-bold mb-3">Saran Visual</h3>
-                <ul className="space-y-2">
-                  {result.visualSuggestions.map((v, i) => (
-                    <li key={i} className="text-slate-200 bg-slate-900/50 p-3 rounded-lg">
-                      {v}
-                    </li>
-                  ))}
-                </ul>
               </div>
             </div>
           )}
+
         </div>
       </main>
     </>

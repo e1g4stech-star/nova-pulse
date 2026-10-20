@@ -3,17 +3,18 @@ import { Inter, Orbitron } from "next/font/google";
 import "./globals.css";
 import { SettingsProvider } from "@/lib/settings-context";
 import CommandPalette from "@/components/CommandPalette";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const orbitron = Orbitron({ subsets: ["latin"], variable: "--font-orbitron" });
 
 export const metadata: Metadata = {
   title: {
-    default: "Nova Pulse — Content Command Center untuk Creator Indonesia",
+    default: "Nova Pulse â€” Content Command Center untuk Creator Indonesia",
     template: "%s | Nova Pulse",
   },
   description:
-    "Platform lengkap untuk content creator — AI untuk generate konten, kalender untuk jadwal, affiliate untuk monetize. Semua dalam satu dashboard futuristik.",
+    "Platform lengkap untuk content creator â€” AI untuk generate konten, kalender untuk jadwal, affiliate untuk monetize. Semua dalam satu dashboard futuristik.",
   keywords: [
     "content creator",
     "AI content generator",
@@ -45,9 +46,9 @@ export const metadata: Metadata = {
     locale: "id_ID",
     url: "/",
     siteName: "Nova Pulse",
-    title: "Nova Pulse — Content Command Center untuk Creator Indonesia",
+    title: "Nova Pulse â€” Content Command Center untuk Creator Indonesia",
     description:
-      "Platform lengkap untuk content creator — AI, kalender, affiliate dalam satu dashboard.",
+      "Platform lengkap untuk content creator â€” AI, kalender, affiliate dalam satu dashboard.",
     images: [
       {
         url: "/og-image.png",
@@ -59,7 +60,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Nova Pulse — Content Command Center",
+    title: "Nova Pulse â€” Content Command Center",
     description: "Platform lengkap untuk content creator Indonesia.",
     images: ["/og-image.png"],
     creator: "@novapulse",
@@ -88,7 +89,7 @@ export default function RootLayout({
   return (
     <html lang="id" suppressHydrationWarning>
       <head>
-        {/* PostHog Analytics Snippet — Versi 2026-05-30 (latest) */}
+        {/* PostHog Analytics Snippet â€” Versi 2026-05-30 (latest) */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -142,6 +143,7 @@ export default function RootLayout({
           {children}
           <CommandPalette />
         </SettingsProvider>
+        <Analytics />
       </body>
     </html>
   );
