@@ -37,6 +37,7 @@ model User {
   subscriptions  Subscription[]
   studioProfile  StudioProfile?
   studioCards    StudioCard[]
+  aiWorkflows    AiWorkflow[]
 
   @@map("users")
 }
@@ -331,9 +332,6 @@ model AIMessage {
 
 // =========================================================
 // BILLING & SUBSCRIPTION
-
-// =========================================================
-// BILLING & SUBSCRIPTION
 // =========================================================
 model Subscription {
   id       String @id @default(cuid())
@@ -413,4 +411,21 @@ model StudioCard {
   @@index([userId, stage])
   @@index([userId, schedule])
   @@map("studio_cards")
+}
+
+// =========================================================
+// AI WORKFLOW BUILDER
+// =========================================================
+model AiWorkflow {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   @default("Workflow Baru")
+  nodes     Json     @default("[]")
+  edges     Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("ai_workflows")
 }

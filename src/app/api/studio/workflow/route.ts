@@ -1,0 +1,431 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String?
+  image         String?
+  emailVerified DateTime?
+  createdAt     DateTime  @default(now())
+
+  // Billing
+  plan          String    @default("free")
+  planExpiresAt DateTime?
+  planStartedAt DateTime?
+  planPrice     Float     @default(0)
+
+  accounts       Account[]
+  sessions       Session[]
+  posts          Post[]
+  connections    SocialConnection[]
+  analytics      Analytics[]
+  transactions   Transaction[]
+  media          Media[]
+  affiliateLinks AffiliateLink[]
+  calendarEvents CalendarEvent[]
+  notes          Note[]
+  aiChats        AIChat[]
+  settings       UserSettings?
+  subscriptions  Subscription[]
+  studioProfile  StudioProfile?
+  studioCards    StudioCard[]
+  aiWorkflows    AiWorkflow[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model UserSettings {
+  id     String @id @default(cuid())
+  userId String @unique
+
+  theme       String  @default("neon")
+  fontSize    String  @default("normal")
+  compactMode Boolean @default(false)
+  particlesOn Boolean @default(true)
+  accentColor String  @default("#5ee7ff")
+
+  aiModel        String  @default("gemini-3.8-flash")
+  aiTemperature  Float   @default(0.9)
+  aiSystemPrompt String? @db.Text
+  autoSaveChat   Boolean @default(true)
+
+  emailReminder Boolean @default(false)
+  browserNotify Boolean @default(false)
+  dailySummary  Boolean @default(false)
+  summaryTime   String  @default("20:00")
+
+  language String @default("id")
+  timezone String @default("Asia/Jakarta")
+  currency String @default("IDR")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_settings")
+}
+
+model SocialConnection {
+  id           String    @id @default(cuid())
+  userId       String
+  platform     String
+  accountId    String
+  accountName  String
+  accessToken  String    @db.Text
+  refreshToken String?   @db.Text
+  expiresAt    DateTime?
+  scope        String?
+  isActive     Boolean   @default(true)
+  connectedAt  DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform, accountId])
+  @@map("social_connections")
+}
+
+model Post {
+  id             String    @id @default(cuid())
+  userId         String
+  title          String
+  desc           String    @db.Text
+  platform       String
+  status         String    @default("draft")
+  scheduledAt    DateTime?
+  publishedAt    DateTime?
+  platformPostId String?
+  platformUrl    String?
+  mediaUrls      String[]
+  hashtags       String[]
+  likes          Int       @default(0)
+  comments       Int       @default(0)
+  shares         Int       @default(0)
+  views          Int       @default(0)
+  errorMessage   String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([scheduledAt])
+  @@map("posts")
+}
+
+model Analytics {
+  id          String   @id @default(cuid())
+  userId      String
+  platform    String
+  date        DateTime
+  followers   Int      @default(0)
+  impressions Int      @default(0)
+  engagement  Int      @default(0)
+  clicks      Int      @default(0)
+  revenue     Float    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, platform, date])
+  @@index([userId, date])
+  @@map("analytics")
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  amount    Float
+  category  String
+  note      String?
+  date      DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, type])
+  @@map("transactions")
+}
+
+model Media {
+  id        String   @id @default(cuid())
+  userId    String
+  fileName  String
+  fileUrl   String
+  fileKey   String
+  fileType  String
+  mimeType  String
+  fileSize  Int
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, fileType])
+  @@index([userId, createdAt])
+  @@map("media")
+}
+
+model AffiliateLink {
+  id            String   @id @default(cuid())
+  userId        String
+  slug          String   @unique
+  title         String
+  description   String?
+  affiliateUrl  String   @db.Text
+  commission    Float    @default(0)
+  commissionPct Float    @default(0)
+  category      String   @default("umum")
+  isActive      Boolean  @default(true)
+  clicks        Int      @default(0)
+  conversions   Int      @default(0)
+  earnings      Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clicksData AffiliateClick[]
+
+  @@index([userId, isActive])
+  @@index([slug])
+  @@map("affiliate_links")
+}
+
+model AffiliateClick {
+  id              String   @id @default(cuid())
+  linkId          String
+  ipAddress       String?
+  userAgent       String?  @db.Text
+  referer         String?  @db.Text
+  country         String?
+  city            String?
+  converted       Boolean  @default(false)
+  conversionValue Float    @default(0)
+  clickedAt       DateTime @default(now())
+
+  link AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+
+  @@index([linkId, clickedAt])
+  @@map("affiliate_clicks")
+}
+
+model CalendarEvent {
+  id          String    @id @default(cuid())
+  userId      String
+  title       String
+  description String?   @db.Text
+  startDate   DateTime
+  endDate     DateTime?
+  allDay      Boolean   @default(false)
+  color       String    @default("cyan")
+  category    String    @default("umum")
+  platform    String?
+  isCompleted Boolean   @default(false)
+  reminder    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, startDate])
+  @@index([userId, isCompleted])
+  @@map("calendar_events")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String
+  content   String   @db.Text
+  color     String   @default("cyan")
+  tags      String[]
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isPinned])
+  @@index([userId, createdAt])
+  @@map("notes")
+}
+
+model AIChat {
+  id        String   @id @default(cuid())
+  userId    String
+  title     String   @default("Chat Baru")
+  model     String   @default("gemini-3.5-flash")
+  isPinned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages AIMessage[]
+
+  @@index([userId, isPinned])
+  @@index([userId, updatedAt])
+  @@map("ai_chats")
+}
+
+model AIMessage {
+  id        String   @id @default(cuid())
+  chatId    String
+  role      String
+  content   String   @db.Text
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+
+  chat AIChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId, createdAt])
+  @@map("ai_messages")
+}
+
+// =========================================================
+// BILLING & SUBSCRIPTION
+// =========================================================
+model Subscription {
+  id       String @id @default(cuid())
+  userId   String
+  plan     String
+  status   String @default("pending")
+  price    Float
+  currency String @default("IDR")
+
+  startedAt   DateTime  @default(now())
+  expiresAt   DateTime
+  cancelledAt DateTime?
+
+  midtransOrderId String?   @unique
+  midtransToken   String?
+  paymentMethod   String?
+  paidAt          DateTime?
+
+  metadata  String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([midtransOrderId])
+  @@map("subscriptions")
+}
+
+// =========================================================
+// STUDIO KONTEN AI
+// =========================================================
+model StudioProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  brand       String   @default("")
+  niche       String   @default("")
+  audience    String   @default("")
+  voice       String   @default("")
+  pillars     String   @default("")
+  hashtags    String   @default("")
+  cta         String   @default("")
+  platforms   String[] @default(["tiktok", "instagram"])
+  times       Json     @default("{\"tiktok\":\"19:00\",\"instagram\":\"12:00\",\"facebook\":\"09:00\",\"youtube\":\"17:00\"}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("studio_profiles")
+}
+
+model StudioCard {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String   @default("")
+  stage       String   @default("ide")
+  platforms   String[] @default(["tiktok", "instagram"])
+  format      String   @default("short")
+  pillar      String   @default("")
+  hook        String   @default("")
+  script      Json     @default("[]")
+  captions    Json     @default("{}")
+  tags        Json     @default("{}")
+  ytTitle     String   @default("")
+  ytDesc      String   @default("")
+  cta         String   @default("")
+  schedule    DateTime?
+  checklist   Json     @default("[]")
+  perf        Json     @default("{\"views\":\"\",\"likes\":\"\",\"comments\":\"\",\"shares\":\"\"}")
+  prompts     Json     @default("{}")
+  pOpt        Json     @default("{\"lang\":\"en\",\"style\":\"Sinematik realistis\",\"voice\":\"Hangat dan santai\"}")
+  example     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId, stage])
+  @@index([userId, schedule])
+  @@map("studio_cards")
+}
+
+// =========================================================
+// AI WORKFLOW BUILDER
+// =========================================================
+model AiWorkflow {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String   @default("Workflow Baru")
+  nodes     Json     @default("[]")
+  edges     Json     @default("[]")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("ai_workflows")
+}

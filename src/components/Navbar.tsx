@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 
 
@@ -53,6 +53,7 @@ export default function Navbar() {
   { href: "/ai-studio", label: "AI Studio" },
   { href: "/ai-chat", label: "AI Chat" },
   { href: "/ai-agent", label: "AI Agent" },
+  { href: "/ai-workflow", label: "Workflow" },
   { href: "/media-studio", label: "Media" },
   { href: "/kalender", label: "Kalender" },
   { href: "/ai-calendar", label: "AI Calendar" },

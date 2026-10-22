@@ -4,12 +4,13 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 
 const VISUAL_ENGINES = [
-  { id: "kling", name: "Kling AI", url: "https://klingai.com", desc: "Video sinematik + gambar detail", icon: "🎬" },
-  { id: "runway", name: "Runway", url: "https://runwayml.com", desc: "Video profesional 1080p", icon: "🎥" },
-  { id: "grok", name: "Grok AI", url: "https://grok.com", desc: "Gambar kreatif & realistis (X.AI)", icon: "⚡" },
-  { id: "google", name: "Google Veo", url: "https://labs.google/veo", desc: "Video AI dari Google Labs", icon: "🔷" },
-  { id: "leonardo", name: "Leonardo AI", url: "https://leonardo.ai", desc: "Gambar artistik & game asset", icon: "🎨" },
-  { id: "ideogram", name: "Ideogram", url: "https://ideogram.ai", desc: "Gambar dengan teks di dalamnya", icon: "✍️" },
+  { id: "imagine", name: "Imagine.art", url: "https://www.imagine.art", desc: "Workflow visual & generate gambar 1 klik", icon: "🪄" },
+  { id: "kling", name: "Kling AI", url: "https://klingai.com", desc: "Video sinematik + gambar detail", icon: "ðŸŽ¬" },
+  { id: "runway", name: "Runway", url: "https://runwayml.com", desc: "Video profesional 1080p", icon: "ðŸŽ¥" },
+  { id: "grok", name: "Grok AI", url: "https://grok.com", desc: "Gambar kreatif & realistis (X.AI)", icon: "âš¡" },
+  { id: "google", name: "Google Veo", url: "https://labs.google/veo", desc: "Video AI dari Google Labs", icon: "ðŸ”·" },
+  { id: "leonardo", name: "Leonardo AI", url: "https://leonardo.ai", desc: "Gambar artistik & game asset", icon: "ðŸŽ¨" },
+  { id: "ideogram", name: "Ideogram", url: "https://ideogram.ai", desc: "Gambar dengan teks di dalamnya", icon: "âœï¸" },
 ];
 
 export default function AIStudioPage() {
@@ -88,7 +89,7 @@ export default function AIStudioPage() {
                 Generate Visual AI
               </button>
             </div>
-            {copied && <p className="text-xs mt-3 text-green-400">✅ Prompt berhasil disalin! Tinggal paste (Ctrl+V) di website AI yang terbuka.</p>}
+            {copied && <p className="text-xs mt-3 text-green-400">âœ… Prompt berhasil disalin! Tinggal paste (Ctrl+V) di website AI yang terbuka.</p>}
           </div>
 
           {/* MODAL PILIHAN ENGINE VISUAL */}
@@ -97,7 +98,7 @@ export default function AIStudioPage() {
               <div className="w-full max-w-lg rounded-2xl border p-5 max-h-[80vh] overflow-y-auto" style={{ background: "var(--theme-bg-primary)", borderColor: "var(--theme-border)" }}>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-bold">Pilih Mesin Visual AI</h2>
-                  <button onClick={() => setShowEngines(false)} className="text-xl font-bold px-2">×</button>
+                  <button onClick={() => setShowEngines(false)} className="text-xl font-bold px-2">Ã—</button>
                 </div>
                 <p className="text-xs mb-4" style={{ color: "var(--theme-text-muted)" }}>
                   Nova Pulse akan menyalin promptmu otomatis. Kamu tinggal paste (Ctrl+V) di website AI yang terbuka.
@@ -116,7 +117,7 @@ export default function AIStudioPage() {
                         <div className="font-bold text-sm">{engine.name}</div>
                         <div className="text-xs" style={{ color: "var(--theme-text-muted)" }}>{engine.desc}</div>
                       </div>
-                      <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300">Buka ↗</span>
+                      <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-300">Buka â†—</span>
                     </button>
                   ))}
                 </div>

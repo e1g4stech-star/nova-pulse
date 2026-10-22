@@ -22,6 +22,7 @@
     "@prisma/client": "^6.19.3",
     "@vercel/analytics": "^2.0.1",
     "@vercel/blob": "^0.27.0",
+    "@xyflow/react": "^12.12.0",
     "bcryptjs": "^3.0.3",
     "jose": "^5.9.6",
     "next": "^15.5.27",
