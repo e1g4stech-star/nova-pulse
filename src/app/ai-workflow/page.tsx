@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import ReactFlow, {
+import {
+  ReactFlow as ReactFlowRaw,
   Background,
   Controls,
   MiniMap,
@@ -16,6 +17,9 @@ import ReactFlow, {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Navbar from "@/components/Navbar";
+
+// Paksa TypeScript menerima ReactFlow sebagai komponen valid
+const ReactFlow = ReactFlowRaw as any;
 
 const NODE_TYPES = {
   input: { label: "Input Ide", color: "#3b82f6" },
@@ -62,13 +66,13 @@ export default function AiWorkflowPage() {
         body: JSON.stringify({ name: workflowName, nodes, edges }),
       });
       if (res.ok) {
-        alert("✅ Workflow berhasil disimpan!");
+        alert("Workflow berhasil disimpan!");
       } else {
         const d = await res.json();
-        alert("❌ Gagal menyimpan: " + (d.error || "Unknown"));
+        alert("Gagal menyimpan: " + (d.error || "Unknown"));
       }
     } catch (e: any) {
-      alert("❌ Error: " + e.message);
+      alert("Error: " + e.message);
     } finally {
       setSaving(false);
     }
