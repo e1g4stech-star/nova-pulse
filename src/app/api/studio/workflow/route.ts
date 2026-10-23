@@ -16,7 +16,7 @@ export async function GET() {
 
     return NextResponse.json({ success: true, workflows });
   } catch (err: any) {
-    console.error("[GET /api/studio/workflow]", err);
+    console.error("[GET /api/studio/workflow] Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
@@ -29,22 +29,31 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { name, nodes, edges } = body;
 
-    if (!Array.isArray(nodes) || !Array.isArray(edges)) {
-      return NextResponse.json({ error: "nodes dan edges harus array" }, { status: 400 });
+    // Validasi input
+    if (!Array.isArray(nodes)) {
+      return NextResponse.json({ error: "Field nodes harus berupa array" }, { status: 400 });
+    }
+    if (!Array.isArray(edges)) {
+      return NextResponse.json({ error: "Field edges harus berupa array" }, { status: 400 });
     }
 
+    // Simpan ke database dengan format JSON yang benar
     const workflow = await prisma.aiWorkflow.create({
       data: {
         userId: user.id,
         name: name || "Workflow Baru",
-        nodes,
-        edges,
+        nodes: JSON.parse(JSON.stringify(nodes)),
+        edges: JSON.parse(JSON.stringify(edges)),
       },
     });
 
+    console.log("[Workflow POST] Saved successfully:", workflow.id);
     return NextResponse.json({ success: true, workflow });
   } catch (err: any) {
-    console.error("[POST /api/studio/workflow]", err);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error("[POST /api/studio/workflow] Error:", err);
+    return NextResponse.json(
+      { error: err.message || "Gagal menyimpan workflow ke database" },
+      { status: 500 }
+    );
   }
 }
