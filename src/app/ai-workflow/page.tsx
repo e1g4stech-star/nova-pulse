@@ -42,8 +42,7 @@ export default function AiWorkflowPage() {
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [workflowName, setWorkflowName] = useState("Workflow Saya");
   const [saving, setSaving] = useState(false);
-  
-  // State untuk modal edit node
+
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [editText, setEditText] = useState("");
 
@@ -60,21 +59,29 @@ export default function AiWorkflowPage() {
     []
   );
 
-  // Fungsi saat node diklik
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
     setEditText((node.data.text as string) || "");
   }, []);
 
-  // Fungsi untuk menyimpan hasil edit node
   function saveNodeEdit() {
     if (!selectedNode) return;
-    setNodes((nds) =>
-      nds.map((n) =>
-        n.id === selectedNode.id ? { ...n, data: { ...n.data, text: editText } } : n
-      )
+
+    setNodes((prevNodes) =>
+      prevNodes.map((n) => {
+        if (n.id === selectedNode.id) {
+          return {
+            ...n,
+            data: { ...n.data, text: editText }
+          };
+        }
+        return n;
+      })
     );
+
     setSelectedNode(null);
+    setEditText("");
+    alert("Teks node berhasil diperbarui! Klik Simpan Workflow di kiri untuk simpan ke database.");
   }
 
   async function saveWorkflow() {
@@ -86,7 +93,7 @@ export default function AiWorkflowPage() {
         body: JSON.stringify({ name: workflowName, nodes, edges }),
       });
       if (res.ok) {
-        alert("Workflow berhasil disimpan!");
+        alert("Workflow berhasil disimpan ke database!");
       } else {
         const d = await res.json();
         alert("Gagal menyimpan: " + (d.error || "Unknown"));
@@ -169,13 +176,12 @@ export default function AiWorkflowPage() {
         </div>
       </div>
 
-      {/* MODAL EDIT NODE */}
       {selectedNode && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)" }}>
           <div className="w-full max-w-md rounded-xl border p-5" style={{ background: "var(--theme-bg-primary)", borderColor: "var(--theme-border)" }}>
             <div className="flex justify-between items-center mb-3">
               <h3 className="font-bold">Edit Node: {selectedNode.data.label as string}</h3>
-              <button onClick={() => setSelectedNode(null)} className="text-xl">×</button>
+              <button onClick={() => setSelectedNode(null)} className="text-xl">x</button>
             </div>
             <label className="block mb-3">
               <span className="text-xs font-semibold" style={{ color: "var(--theme-text-muted)" }}>
