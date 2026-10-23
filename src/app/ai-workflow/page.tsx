@@ -42,6 +42,7 @@ export default function AiWorkflowPage() {
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [workflowName, setWorkflowName] = useState("Workflow Saya");
   const [saving, setSaving] = useState(false);
+  const [running, setRunning] = useState(false);
   const [toast, setToast] = useState("");
   const [savedWorkflows, setSavedWorkflows] = useState<any[]>([]);
   
@@ -61,7 +62,6 @@ export default function AiWorkflowPage() {
     []
   );
 
-  // Fungsi untuk memuat daftar workflow yang tersimpan
   const loadWorkflows = useCallback(async () => {
     try {
       const res = await fetch("/api/studio/workflow");
@@ -72,7 +72,6 @@ export default function AiWorkflowPage() {
     } catch (e) { console.error(e); }
   }, []);
 
-  // Load daftar workflow saat pertama kali halaman dibuka
   useEffect(() => {
     loadWorkflows();
   }, [loadWorkflows]);
@@ -88,10 +87,7 @@ export default function AiWorkflowPage() {
     setNodes((prevNodes) =>
       prevNodes.map((n) => {
         if (n.id === selectedNode.id) {
-          return {
-            ...n,
-            data: { ...n.data, text: editText }
-          };
+          return { ...n, data: { ...n.data, text: editText } };
         }
         return n;
       })
@@ -99,7 +95,7 @@ export default function AiWorkflowPage() {
 
     setSelectedNode(null);
     setEditText("");
-    setToast("✅ Teks node berhasil diperbarui!");
+    setToast("✅ Teks node diperbarui!");
     setTimeout(() => setToast(""), 3000);
   }
 
@@ -114,7 +110,7 @@ export default function AiWorkflowPage() {
       if (res.ok) {
         setToast("✅ Workflow berhasil disimpan!");
         setTimeout(() => setToast(""), 3000);
-        loadWorkflows(); // Refresh daftar
+        loadWorkflows();
       } else {
         const d = await res.json();
         setToast("❌ Gagal: " + (d.error || "Unknown"));
@@ -125,6 +121,51 @@ export default function AiWorkflowPage() {
       setTimeout(() => setToast(""), 3000);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function runWorkflow() {
+    setRunning(true);
+    setToast("⏳ Menjalankan AI...");
+    try {
+      const res = await fetch("/api/studio/workflow/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nodes, edges }),
+      });
+
+      const d = await res.json();
+      if (!res.ok) {
+        setToast("❌ " + (d.error || "Gagal"));
+        setTimeout(() => setToast(""), 5000);
+        return;
+      }
+
+      // Update node output
+      if (d.outputNodeId) {
+        setNodes((prevNodes) =>
+          prevNodes.map((n) =>
+            n.id === d.outputNodeId ? { ...n, data: { ...n.data, text: d.result } } : n
+          )
+        );
+      } else {
+        // Kalau tidak ada node output, tambahkan node baru
+        const newNode: Node = {
+          id: `output-${Date.now()}`,
+          position: { x: 700, y: 300 },
+          data: { label: "Output", text: d.result },
+          style: { background: "#22c55e", color: "white", border: "none", borderRadius: 8, padding: 10 },
+        };
+        setNodes((nds) => [...nds, newNode]);
+      }
+
+      setToast(`✅ Workflow selesai! (via ${d.provider})`);
+      setTimeout(() => setToast(""), 4000);
+    } catch (e: any) {
+      setToast("❌ Error: " + e.message);
+      setTimeout(() => setToast(""), 4000);
+    } finally {
+      setRunning(false);
     }
   }
 
@@ -185,11 +226,20 @@ export default function AiWorkflowPage() {
             {saving ? "Menyimpan..." : "Simpan Workflow"}
           </button>
 
+          <button
+            onClick={runWorkflow}
+            disabled={running}
+            className="w-full py-2 rounded-lg text-sm font-bold text-white disabled:opacity-50 mt-2"
+            style={{ background: "#a855f7" }}
+          >
+            {running ? "⏳ Menjalankan..." : "▶ Jalankan AI"}
+          </button>
+
           <hr className="my-4" style={{ borderColor: "var(--theme-border)" }} />
 
           <h3 className="font-bold mb-2 text-sm">Workflow Tersimpan</h3>
           {savedWorkflows.length === 0 && (
-            <p className="text-xs" style={{ color: "var(--theme-text-muted)" }}>Belum ada workflow tersimpan.</p>
+            <p className="text-xs" style={{ color: "var(--theme-text-muted)" }}>Belum ada.</p>
           )}
           {savedWorkflows.map((wf) => (
             <button
@@ -203,7 +253,7 @@ export default function AiWorkflowPage() {
           ))}
 
           <p className="text-xs mt-4" style={{ color: "var(--theme-text-muted)" }}>
-            Tip: Klik node untuk mengedit isinya.
+            Tip: Klik node untuk mengedit isinya. Klik "Jalankan AI" untuk memproses.
           </p>
         </aside>
 
@@ -265,7 +315,7 @@ export default function AiWorkflowPage() {
       )}
 
       {toast && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg" style={{ background: "#22c55e", color: "white" }}>
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg" style={{ background: "#22c55e", color: "white", maxWidth: 400 }}>
           {toast}
         </div>
       )}
