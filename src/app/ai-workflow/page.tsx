@@ -18,7 +18,6 @@ import {
 import "@xyflow/react/dist/style.css";
 import Navbar from "@/components/Navbar";
 
-// Paksa TypeScript menerima ReactFlow sebagai komponen valid
 const ReactFlow = ReactFlowRaw as any;
 
 const NODE_TYPES = {
@@ -28,9 +27,9 @@ const NODE_TYPES = {
 };
 
 const initialNodes: Node[] = [
-  { id: "1", position: { x: 100, y: 100 }, data: { label: "Input Ide" }, style: { background: "#3b82f6", color: "white", border: "none", borderRadius: 8, padding: 10 } },
-  { id: "2", position: { x: 400, y: 100 }, data: { label: "Generate Naskah" }, style: { background: "#a855f7", color: "white", border: "none", borderRadius: 8, padding: 10 } },
-  { id: "3", position: { x: 700, y: 100 }, data: { label: "Hasil Akhir" }, style: { background: "#22c55e", color: "white", border: "none", borderRadius: 8, padding: 10 } },
+  { id: "1", position: { x: 100, y: 100 }, data: { label: "Input Ide", text: "" }, style: { background: "#3b82f6", color: "white", border: "none", borderRadius: 8, padding: 10 } },
+  { id: "2", position: { x: 400, y: 100 }, data: { label: "Generate Naskah", text: "" }, style: { background: "#a855f7", color: "white", border: "none", borderRadius: 8, padding: 10 } },
+  { id: "3", position: { x: 700, y: 100 }, data: { label: "Hasil Akhir", text: "" }, style: { background: "#22c55e", color: "white", border: "none", borderRadius: 8, padding: 10 } },
 ];
 
 const initialEdges: Edge[] = [
@@ -43,6 +42,10 @@ export default function AiWorkflowPage() {
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [workflowName, setWorkflowName] = useState("Workflow Saya");
   const [saving, setSaving] = useState(false);
+  
+  // State untuk modal edit node
+  const [selectedNode, setSelectedNode] = useState<Node | null>(null);
+  const [editText, setEditText] = useState("");
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -56,6 +59,23 @@ export default function AiWorkflowPage() {
     (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
     []
   );
+
+  // Fungsi saat node diklik
+  const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
+    setSelectedNode(node);
+    setEditText((node.data.text as string) || "");
+  }, []);
+
+  // Fungsi untuk menyimpan hasil edit node
+  function saveNodeEdit() {
+    if (!selectedNode) return;
+    setNodes((nds) =>
+      nds.map((n) =>
+        n.id === selectedNode.id ? { ...n, data: { ...n.data, text: editText } } : n
+      )
+    );
+    setSelectedNode(null);
+  }
 
   async function saveWorkflow() {
     setSaving(true);
@@ -82,7 +102,7 @@ export default function AiWorkflowPage() {
     const newNode: Node = {
       id: `node-${Date.now()}`,
       position: { x: Math.random() * 300 + 100, y: Math.random() * 200 + 200 },
-      data: { label: NODE_TYPES[type].label },
+      data: { label: NODE_TYPES[type].label, text: "" },
       style: { background: NODE_TYPES[type].color, color: "white", border: "none", borderRadius: 8, padding: 10 },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -128,7 +148,7 @@ export default function AiWorkflowPage() {
           </button>
 
           <p className="text-xs mt-4" style={{ color: "var(--theme-text-muted)" }}>
-            Tip: Tarik garis dari titik kanan node ke titik kiri node lain.
+            Tip: Klik node untuk mengedit isinya.
           </p>
         </aside>
 
@@ -139,6 +159,7 @@ export default function AiWorkflowPage() {
             onNodesChange={onNodesChange}
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
+            onNodeClick={onNodeClick}
             fitView
           >
             <Background />
@@ -147,6 +168,47 @@ export default function AiWorkflowPage() {
           </ReactFlow>
         </div>
       </div>
+
+      {/* MODAL EDIT NODE */}
+      {selectedNode && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgba(0,0,0,0.6)" }}>
+          <div className="w-full max-w-md rounded-xl border p-5" style={{ background: "var(--theme-bg-primary)", borderColor: "var(--theme-border)" }}>
+            <div className="flex justify-between items-center mb-3">
+              <h3 className="font-bold">Edit Node: {selectedNode.data.label as string}</h3>
+              <button onClick={() => setSelectedNode(null)} className="text-xl">×</button>
+            </div>
+            <label className="block mb-3">
+              <span className="text-xs font-semibold" style={{ color: "var(--theme-text-muted)" }}>
+                Isi / Instruksi
+              </span>
+              <textarea
+                rows={4}
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                placeholder="Ketik ide, instruksi AI, atau teks output di sini..."
+                className="w-full mt-1 px-3 py-2 rounded-lg border text-sm"
+                style={{ background: "var(--theme-bg-secondary)", borderColor: "var(--theme-border)", color: "var(--theme-text-primary)" }}
+              />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setSelectedNode(null)}
+                className="px-4 py-2 rounded-lg border text-sm"
+                style={{ borderColor: "var(--theme-border)" }}
+              >
+                Batal
+              </button>
+              <button
+                onClick={saveNodeEdit}
+                className="px-4 py-2 rounded-lg text-sm font-bold text-white"
+                style={{ background: "var(--accent-color)" }}
+              >
+                Simpan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
