@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   ReactFlow as ReactFlowRaw,
   Background,
@@ -42,7 +42,9 @@ export default function AiWorkflowPage() {
   const [edges, setEdges] = useState<Edge[]>(initialEdges);
   const [workflowName, setWorkflowName] = useState("Workflow Saya");
   const [saving, setSaving] = useState(false);
-
+  const [toast, setToast] = useState("");
+  const [savedWorkflows, setSavedWorkflows] = useState<any[]>([]);
+  
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [editText, setEditText] = useState("");
 
@@ -58,6 +60,22 @@ export default function AiWorkflowPage() {
     (params: Connection) => setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
     []
   );
+
+  // Fungsi untuk memuat daftar workflow yang tersimpan
+  const loadWorkflows = useCallback(async () => {
+    try {
+      const res = await fetch("/api/studio/workflow");
+      if (res.ok) {
+        const d = await res.json();
+        setSavedWorkflows(d.workflows || []);
+      }
+    } catch (e) { console.error(e); }
+  }, []);
+
+  // Load daftar workflow saat pertama kali halaman dibuka
+  useEffect(() => {
+    loadWorkflows();
+  }, [loadWorkflows]);
 
   const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
     setSelectedNode(node);
@@ -81,7 +99,8 @@ export default function AiWorkflowPage() {
 
     setSelectedNode(null);
     setEditText("");
-    alert("Teks node berhasil diperbarui! Klik Simpan Workflow di kiri untuk simpan ke database.");
+    setToast("✅ Teks node berhasil diperbarui!");
+    setTimeout(() => setToast(""), 3000);
   }
 
   async function saveWorkflow() {
@@ -93,16 +112,28 @@ export default function AiWorkflowPage() {
         body: JSON.stringify({ name: workflowName, nodes, edges }),
       });
       if (res.ok) {
-        alert("Workflow berhasil disimpan ke database!");
+        setToast("✅ Workflow berhasil disimpan!");
+        setTimeout(() => setToast(""), 3000);
+        loadWorkflows(); // Refresh daftar
       } else {
         const d = await res.json();
-        alert("Gagal menyimpan: " + (d.error || "Unknown"));
+        setToast("❌ Gagal: " + (d.error || "Unknown"));
+        setTimeout(() => setToast(""), 3000);
       }
     } catch (e: any) {
-      alert("Error: " + e.message);
+      setToast("❌ Error: " + e.message);
+      setTimeout(() => setToast(""), 3000);
     } finally {
       setSaving(false);
     }
+  }
+
+  function loadWorkflow(wf: any) {
+    if (wf.nodes) setNodes(wf.nodes);
+    if (wf.edges) setEdges(wf.edges);
+    setWorkflowName(wf.name);
+    setToast("✅ Workflow dimuat!");
+    setTimeout(() => setToast(""), 3000);
   }
 
   function addNode(type: keyof typeof NODE_TYPES) {
@@ -119,7 +150,7 @@ export default function AiWorkflowPage() {
     <>
       <Navbar />
       <div style={{ height: "calc(100vh - 64px)", display: "flex" }}>
-        <aside style={{ width: 240, padding: 16, borderRight: "1px solid var(--theme-border)", background: "var(--theme-bg-secondary)" }}>
+        <aside style={{ width: 260, padding: 16, borderRight: "1px solid var(--theme-border)", background: "var(--theme-bg-secondary)", overflowY: "auto" }}>
           <h3 className="font-bold mb-4 text-sm">Tambah Node</h3>
           {(Object.keys(NODE_TYPES) as (keyof typeof NODE_TYPES)[]).map((key) => (
             <button
@@ -153,6 +184,23 @@ export default function AiWorkflowPage() {
           >
             {saving ? "Menyimpan..." : "Simpan Workflow"}
           </button>
+
+          <hr className="my-4" style={{ borderColor: "var(--theme-border)" }} />
+
+          <h3 className="font-bold mb-2 text-sm">Workflow Tersimpan</h3>
+          {savedWorkflows.length === 0 && (
+            <p className="text-xs" style={{ color: "var(--theme-text-muted)" }}>Belum ada workflow tersimpan.</p>
+          )}
+          {savedWorkflows.map((wf) => (
+            <button
+              key={wf.id}
+              onClick={() => loadWorkflow(wf)}
+              className="w-full text-left px-2 py-1.5 rounded text-xs mb-1 hover:bg-white/5"
+              style={{ color: "var(--theme-text-primary)" }}
+            >
+              {wf.name}
+            </button>
+          ))}
 
           <p className="text-xs mt-4" style={{ color: "var(--theme-text-muted)" }}>
             Tip: Klik node untuk mengedit isinya.
@@ -213,6 +261,12 @@ export default function AiWorkflowPage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {toast && (
+        <div className="fixed bottom-6 right-6 z-50 px-4 py-2.5 rounded-lg text-sm font-semibold shadow-lg" style={{ background: "#22c55e", color: "white" }}>
+          {toast}
         </div>
       )}
     </>
