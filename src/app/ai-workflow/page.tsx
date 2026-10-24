@@ -242,27 +242,27 @@ export default function AiWorkflowPage() {
             <p className="text-xs" style={{ color: "var(--theme-text-muted)" }}>Belum ada.</p>
           )}
           {savedWorkflows.map((wf) => (
-  <div key={wf.id} className="flex items-center gap-1 mb-1">
-    <button
-      onClick={() => loadWorkflow(wf)}
-      className="flex-1 text-left px-2 py-1.5 rounded text-xs hover:bg-white/5 truncate"
-      style={{ color: "var(--theme-text-primary)" }}
-    >
-      {wf.name}
-    </button>
-    <button
-      onClick={async () => {
-        if (!confirm(`Hapus "${wf.name}"?`)) return;
-        await fetch(`/api/studio/workflow/${wf.id}`, { method: "DELETE" });
-        loadWorkflows();
-      }}
-      className="text-xs px-1.5 py-1 rounded hover:bg-red-500/20"
-      style={{ color: "#fca5a5" }}
-    >
-      x
-    </button>
-  </div>
-))}
+            <div key={wf.id} className="flex items-center gap-1 mb-1">
+              <button
+                onClick={() => loadWorkflow(wf)}
+                className="flex-1 text-left px-2 py-1.5 rounded text-xs hover:bg-white/5 truncate"
+                style={{ color: "var(--theme-text-primary)" }}
+              >
+                {wf.name}
+              </button>
+              <button
+                onClick={async () => {
+                  if (!confirm(`Hapus "${wf.name}"?`)) return;
+                  await fetch(`/api/studio/workflow/${wf.id}`, { method: "DELETE" });
+                  loadWorkflows();
+                }}
+                className="text-xs px-1.5 py-1 rounded hover:bg-red-500/20"
+                style={{ color: "#fca5a5" }}
+              >
+                x
+              </button>
+            </div>
+          ))}
 
           <p className="text-xs mt-4" style={{ color: "var(--theme-text-muted)" }}>
             Tip: Klik node untuk mengedit isinya. Klik "Jalankan AI" untuk memproses.
@@ -277,6 +277,7 @@ export default function AiWorkflowPage() {
             onEdgesChange={onEdgesChange}
             onConnect={onConnect}
             onNodeClick={onNodeClick}
+            deleteKeyCode={["Delete", "Backspace"]}
             fitView
           >
             <Background />
